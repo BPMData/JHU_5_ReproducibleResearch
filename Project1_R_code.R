@@ -8,11 +8,16 @@ group_by(actdata, date) %>%
   summarize(DailyStepCount = sum(steps)) %>%
       summary -> stepsum
 
+
+stepsum
+
 stepsum[3,2] -> Median # Median
 stepsum[4,2] -> Mean # Mean
 
 MedianNum <- substr(Median, nchar(Median) - 6 , nchar(Median))
 MeanNum <- substr(Mean, nchar(Mean) - 6 , nchar(Mean))
+
+# Yes this is totally wrong
 
 # Histogram ####
 
@@ -71,6 +76,9 @@ groupedintervalsweekly <- groupedintervals
 max(groupedintervalsavg[,2])
 
 max(groupedintervals[,2])
+
+# Now let's calculate imputed...
+
 
 
 # Here's our cute plots. Smooth seems the nicest.
