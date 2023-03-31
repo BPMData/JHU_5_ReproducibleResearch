@@ -26,9 +26,13 @@ group_by(actdata, date) %>%
 
 NoNAsDailySteps <- replace_na(DailySteps, list(date = 0, DailyStepCount = 0))
 
+# Don't do it that way, use clean data.
+
+group_by(CleanActData, date) %>%
+      summarize(DailyStepCount = sum(steps)) -> DailySteps
 
 
-ggplot(NoNAsDailySteps, aes(x=DailyStepCount)) +
+ggplot(DailySteps, aes(x=DailyStepCount)) +
       geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
       labs(title = "Histogram of Daily Step Counts, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
       theme_minimal() +
@@ -85,6 +89,7 @@ max(groupedintervals[,2])
 ggplot(groupedintervalsavg,aes(x = WeeklySteps, y = interval)) + geom_line()
 ggplot(groupedintervalsavg,aes(x = WeeklySteps, y = interval)) + geom_smooth()
 ggplot(groupedintervalsavg,aes(x = WeeklySteps, y = interval)) + geom_point()
+
 
 avg <- groupedintervalsavg
 # Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
@@ -189,20 +194,7 @@ ggplot(imputed, aes(x=steps)) +
                                               size = 0.25,
                                               linetype = 2))
 
-ggplot(NoNAsDailySteps, aes(x=DailyStepCount)) +
-      geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
-      labs(title = "Histogram of Daily Step Counts, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
-      theme_minimal() +
-      theme(panel.background = element_rect(fill = NA),
-            panel.ontop = TRUE) +
-      theme(panel.grid.major.x = element_blank(),
-            panel.grid.minor.x = element_blank(),
-            panel.grid.major.y = element_line(color = "darkcyan",
-                                              size = 0.75,
-                                              linetype = 2),
-            panel.grid.minor.y = element_line(color = "darkcyan",
-                                              size = 0.25,
-                                              linetype = 2))
+
 
 
 
