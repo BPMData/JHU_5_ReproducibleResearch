@@ -9,7 +9,8 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=TRUE}
+
+```r
 # This is our initial setup block, named setup, with include = TRUE so it will show up.  
 
 # First we'll set any global variables we care about...
@@ -25,12 +26,24 @@ actdata <- read.csv("repdata_data_activity/activity.csv")
 library(tidyverse)
 ```
 
+```
+## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.4.0      ✔ purrr   1.0.1 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.3.0      ✔ stringr 1.5.0 
+## ✔ readr   2.1.3      ✔ forcats 0.5.2 
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+```
+
 <h2 align = "center"> **Q1: What is the mean total number of steps taken per day? ** </h2>
 
 In order to answer this question, we first have to manipulate our base dataset, which I've named `actdata` (for *"activity data"*) to group by date, then summarize this group date by the variable "steps". This will give us our daily step count output, such as might be tracked by a device like a Fitbit. We see the code to accomplish this transformation below. In this variable, I've also replaced all `NA` entries with the number $0$, to make it possible to use this daily step count data for subsequent transformations. I'll thus call our grouped, cleaned dataset `CleanDailySteps`. Notice this code uses the piping operator, made possible because of our call `library(tidyverse)` in the setup code chunk at the beginning of this RMD file.
 
 
-```{r}
+
+```r
 group_by(actdata, date) %>%
       summarize(DailyStepCount = sum(steps)) %>%
       replace_na(list(date = 0, DailyStepCount = 0)) -> CleanDailySteps
@@ -38,23 +51,74 @@ group_by(actdata, date) %>%
 
 Looking at the structure of this file: `{r} ` - we can see that we have created a $61 by 2$ tibble with two columns, *date* and *DailyStepCount.* This lets us know that the dataset runs across 61 days, which will be important when calculating any averages of the step data.
 
-```{r}
+
+```r
 str(CleanDailySteps)
 ```
 
+```
+## tibble [61 × 2] (S3: tbl_df/tbl/data.frame)
+##  $ date          : chr [1:61] "2012-10-01" "2012-10-02" "2012-10-03" "2012-10-04" ...
+##  $ DailyStepCount: int [1:61] 0 126 11352 12116 13294 15420 11015 0 12811 9900 ...
+```
+
 We can also look at the `head` of our dataset to see what it looks like:
-```{r}
+
+```r
 head(CleanDailySteps)
+```
+
+```
+## # A tibble: 6 × 2
+##   date       DailyStepCount
+##   <chr>               <int>
+## 1 2012-10-01              0
+## 2 2012-10-02            126
+## 3 2012-10-03          11352
+## 4 2012-10-04          12116
+## 5 2012-10-05          13294
+## 6 2012-10-06          15420
 ```
 
 Let's look at some descriptive statistics for `DailyStepCount`, including, most importantly, **the mean total number of steps taken per day** across the 61 days in our dataset.
 
-```{r}
-mean(CleanDailySteps$DailyStepCount) #Mean total steps per day
-sum(CleanDailySteps$DailyStepCount)/61 #Calculating mean manually
-median(CleanDailySteps$DailyStepCount) #Median total steps per day
 
+```r
+mean(CleanDailySteps$DailyStepCount) #Mean total steps per day
+```
+
+```
+## [1] 9354.23
+```
+
+```r
+sum(CleanDailySteps$DailyStepCount)/61 #Calculating mean manually
+```
+
+```
+## [1] 9354.23
+```
+
+```r
+median(CleanDailySteps$DailyStepCount) #Median total steps per day
+```
+
+```
+## [1] 10395
+```
+
+```r
 summary(CleanDailySteps)
+```
+
+```
+##      date           DailyStepCount 
+##  Length:61          Min.   :    0  
+##  Class :character   1st Qu.: 6778  
+##  Mode  :character   Median :10395  
+##                     Mean   : 9354  
+##                     3rd Qu.:12811  
+##                     Max.   :21194
 ```
 
 We see that the mean number of steps per day is $9,354$, while the median is $10,395$, telling us that this data set is **skewed to the left**, with a number of low or zero step count days pulling down the mean of the column DailyStepCount.
@@ -63,7 +127,8 @@ We see that the mean number of steps per day is $9,354$, while the median is $10
 
 While we can make a histogram using the bar chart geometry with ggplot2, we're going to use `geom_histogram` to more clearly demonstrate that we are creating a histogram specifically. We're going to use `+theme` modifiers to remove all vertical gridlines and reformat the horizontal gridlines to make the chart a little easier to look at.
 
-```{r warning=FALSE}
+
+```r
 ggplot(CleanDailySteps, aes(x=DailyStepCount)) +
       geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
       labs(title = "Histogram of Daily Step Counts, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
@@ -81,6 +146,8 @@ ggplot(CleanDailySteps, aes(x=DailyStepCount)) +
                                               linetype = 2))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 <h2 align="center">**Q2: What is the average daily activity pattern?**</h2>
 
 Just from the histogram above, we can see that the daily activity pattern follows a somewhat normal, albeit very left skewed, distribution, with relatively fewer unusually high and unusually low step count days, but a large number of 0 step count days (which could possibly represent something like days where the person from whom the data was being collected forgot to wear their Fitbit or other tracking device).  
@@ -97,7 +164,8 @@ We continue the practice of using the piping operator `%>%` to make the linear n
 
 
 
-```{r}
+
+```r
 CleanActData <- replace_na(actdata,list(steps = 0, date = 0, interval = 0 ))
 CleanActData %>%  select(steps, interval) %>%
       group_by(interval) %>%
@@ -107,9 +175,22 @@ CleanActData %>%  select(steps, interval) %>%
 head(interval_avgs)
 ```
 
+```
+## # A tibble: 6 × 3
+##   interval TotSteps AvgSteps
+##      <int>    <int>    <dbl>
+## 1        0       91   1.49  
+## 2        5       18   0.295 
+## 3       10        7   0.115 
+## 4       15        8   0.131 
+## 5       20        4   0.0656
+## 6       25      111   1.82
+```
+
 Now we can use ggplot2 to plot `interval_avgs` with the 5-minute interval on the x-axis and the average number of steps taken during that interval on the y-axis.
 
-```{r}
+
+```r
 ggplot(interval_avgs, aes(x = interval, y = AvgSteps)) +
       geom_line(color = "red2", linetype = 1) +
       labs(title = "Average Steps Taken During Each \nFive Minute Interval Across All Days", y = "Average STeps Taken", x = "Time of 5-Minute Interval During the Day") + 
@@ -125,9 +206,11 @@ ggplot(interval_avgs, aes(x = interval, y = AvgSteps)) +
             panel.grid.minor.y = element_blank())
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 We can see that the user(s) this data was collected from tends to wake up a little bit after 5 A.M. each day,their activity tends to peak around 8 or 9 am, and they then remain fairly consistently active from 10 am until around 7 pm or so, and after 8 pm their activity drops dramatically, possibly indicating they tend to go to sleep within a few hours of that time.
 
-The 5-minute interval, averaged across all the days in the dataset, that tends to contain the maximum number of steps is `r interval_avgs[interval_avgs$AvgSteps == max(interval_avgs$AvgSteps),1]` am, corresponding to `r round(interval_avgs[interval_avgs$AvgSteps == max(interval_avgs$AvgSteps),3])` steps taken during this 5 minute period, on average. Maybe this time period represents part of the participant(s) daily commute, for example.
+The 5-minute interval, averaged across all the days in the dataset, that tends to contain the maximum number of steps is 835 am, corresponding to 179 steps taken during this 5 minute period, on average. Maybe this time period represents part of the participant(s) daily commute, for example.
 
 <h1 align="center">**Imputing missing values** </h1>
 
@@ -135,18 +218,25 @@ This was the trickest part of the assignment, in my opinion.
 
 Looking at the data, we can see that there are a significant number of observations in the dataset, exclusively in the "steps" column.
 
-```{r}
+
+```r
 sapply(actdata,function(x) sum(is.na(x)))
 ```
 
-In total, there are `r sum(sapply(actdata,function(x) sum(is.na(x))))` missing values in the dataset, making up `r round(sum(sapply(actdata,function(x) sum(is.na(x)))) / nrow(actdata) * 100, 2)`% of the observations in our base dataset `actdata`.
+```
+##    steps     date interval 
+##     2304        0        0
+```
+
+In total, there are 2304 missing values in the dataset, making up 13.11% of the observations in our base dataset `actdata`.
 
 In our calculations above, we simply replaced the missing values with $0's$. This might be a reasonable assumption at some points, such as for the intervals representing the times between 2 and 4 am, for example, but there are certainly missing observations during intervals where the source of the data probably was taking steps.
 
 A more reasonable but still relatively simple method of filling in these missing values is by replacing any missing step values with the average number of steps taken during that 5-minute interval across the entire dataset. As a bonus, this will replace missing values with $0'$ during intervals where the average number of steps taken during that interval was $0$, such as during time periods when the data source was always asleep.
 
 We can accomplish this with a `for` loop, creating a new dataset called `imputed`. See below.  
-```{r}
+
+```r
 imputed <- actdata
 
 for (i in 1:17568) {
@@ -155,12 +245,26 @@ for (i in 1:17568) {
       }
 }
 ```
-If we look at our new dataset `imputed`, we can see that the number of missing values is now `r sum(sapply(imputed, function(x) is.na(x)))`, which is what we wanted. But if we look at the summary of `imputed` and the summary of our original `actdata`, we can see that while the mean and median number of steps taken in a 5-minute interval in the original data was *37.28* and *$0$*, respectively, in the new imputed dataset, the mean number of steps taken in a 5-minute interval is `r round(mean(imputed$steps),2)`, while the median number of steps taken is still `r median(imputed$steps)` steps. We can see these facts in the two outputs of a summary function call, below.
+If we look at our new dataset `imputed`, we can see that the number of missing values is now 0, which is what we wanted. But if we look at the summary of `imputed` and the summary of our original `actdata`, we can see that while the mean and median number of steps taken in a 5-minute interval in the original data was *37.28* and *$0$*, respectively, in the new imputed dataset, the mean number of steps taken in a 5-minute interval is 36.74, while the median number of steps taken is still 0 steps. We can see these facts in the two outputs of a summary function call, below.
 
 
-```{r}
+
+```r
 summary(imputed$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00    0.00    0.00   36.74   26.00  806.00
+```
+
+```r
 summary(actdata$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##    0.00    0.00    0.00   37.38   12.00  806.00    2304
 ```
 This result seems confusing until we analyze it a little more closely. In both datasets, the median is 0, implying that on average, the source of the data does not move at all during any particular 5 minute interval. The means in both data sets are above 0, because the source of the data obviously does move at some point, but substituting imputed data in the place of missing observations brings down the mean of the `steps` observations, implying that many of the missing step values from `actdata` were replaced with low or zero step counts.
 
@@ -169,23 +273,48 @@ Looking at the histograms of the step counts of the original dataset alongside t
 But before we can do that, we need to replicate the process we used to create `CleanDailySteps` to create an `ImputedDailySteps` data frame.
 
 
-```{r}
+
+```r
 group_by(imputed, date) %>%
       summarize(DailyStepCount = sum(steps)) %>%
       replace_na(list(date = 0, DailyStepCount = 0)) -> ImputedDailySteps
 summary(ImputedDailySteps)
+```
+
+```
+##      date           DailyStepCount 
+##  Length:61          Min.   :   41  
+##  Class :character   1st Qu.: 9354  
+##  Mode  :character   Median :10395  
+##                     Mean   :10581  
+##                     3rd Qu.:12811  
+##                     Max.   :21194
+```
+
+```r
 summary(CleanDailySteps)
+```
+
+```
+##      date           DailyStepCount 
+##  Length:61          Min.   :    0  
+##  Class :character   1st Qu.: 6778  
+##  Mode  :character   Median :10395  
+##                     Mean   : 9354  
+##                     3rd Qu.:12811  
+##                     Max.   :21194
 ```
 Comparing the summary() outputs for `CleanDailySteps` and `ImputedDailySteps`, we can observe the facts.  
 
-1) In the original cleaned dataset,the mean number of daily steps taken was **`r round(mean(CleanDailySteps$DailyStepCount),2)` steps**, while the median number of daily steps taken was **`r median(CleanDailySteps$DailyStepCount)` steps.**
-2) In the new dataset in which missing values were replaced by imputed values,the mean number of daily steps taken was **`r round(mean(ImputedDailySteps$DailyStepCount),0)` steps**, while the median number of daily steps taken was **`r median(ImputedDailySteps$DailyStepCount)` steps.** 
+1) In the original cleaned dataset,the mean number of daily steps taken was **9354.23 steps**, while the median number of daily steps taken was **10395 steps.**
+2) In the new dataset in which missing values were replaced by imputed values,the mean number of daily steps taken was **10581 steps**, while the median number of daily steps taken was **10395 steps.** 
       + Thus, by substituting imputed values for missing values and then calculating daily step counts, we can see that while the original data set was skewed left, with a mean lower than the median, in the imputed data set, the daily step counts are skewed right.
       + This tells us that including imputed values tends to increase the daily step count values.  
       
 We can clearly see the effect of including imputed data on our daily step counts by comparing the histogram of daily step counts for the original data frame, `CleanDailySteps`, with the histogram created using `ImputedDailySteps`. See below.
 
-```{r warning=FALSE}
+
+```r
 p1 <- ggplot(CleanDailySteps, aes(x=DailyStepCount)) +
       geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
       labs(title = "Histogram of Daily Step Counts Using Cleaned Data, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
@@ -221,6 +350,8 @@ p2 <- ggplot(ImputedDailySteps, aes(x=DailyStepCount)) +
 gridExtra::grid.arrange(p1, p2)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
 We can see that the **impact of imputing missing data on the estimates of the total daily number of steps** is to decrease the number of days in which the daily step count is $0$, and instead many of these formerly-$0$ days become days clustered approximately aroun the center of the data.
 
 <h2 align="center">**Differences in activity patterns between weekdays and weekends**</h2>
@@ -229,9 +360,20 @@ First, we will create a new factor variable in our dataset with two levels, week
 
 First, looking at our dataset `imputed`, we see that the `date` column is currently being considered a character string column, and we want it as a dates column. Let's create a new dataset called imputed_dates in which `date` will be seen as date data.
 
-```{r}
-glimpse(imputed)
 
+```r
+glimpse(imputed)
+```
+
+```
+## Rows: 17,568
+## Columns: 3
+## $ steps    <dbl> 1.49180328, 0.29508197, 0.11475410, 0.13114754, 0.06557377, 1…
+## $ date     <chr> "2012-10-01", "2012-10-01", "2012-10-01", "2012-10-01", "2012…
+## $ interval <int> 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 100, 105, 110, …
+```
+
+```r
 imputed_dates <- imputed
 
 imputed_dates <- imputed_dates %>%
@@ -240,20 +382,46 @@ imputed_dates <- imputed_dates %>%
 glimpse(imputed_dates)
 ```
 
+```
+## Rows: 17,568
+## Columns: 3
+## $ steps    <dbl> 1.49180328, 0.29508197, 0.11475410, 0.13114754, 0.06557377, 1…
+## $ date     <date> 2012-10-01, 2012-10-01, 2012-10-01, 2012-10-01, 2012-10-01, …
+## $ interval <int> 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 100, 105, 110, …
+```
+
 Now that `date` is considered a date vector, we can create a vector of the same number of rows as actdata (n = 17,568) telling us the name of the day of the week associated with each row, then create a logical vector for TRUE if the day of the week is a weekday and FALSE if a weekend, convert that logical vector into a factor vector with ifelse(), and finally bind that factor vector to `imputed_dates`.
 
-```{r}
+
+```r
 daysoftheweek <- weekdays(imputed_dates[[2]])
 day_type <-  daysoftheweek %in% c("Monday","Tuesday","Wednesday","Thursday","Friday")
 day_type <- as.factor(ifelse(day_type, "weekday", "weekend"))
 imputed_dates <- cbind(imputed_dates, day_type)
 
 glimpse(imputed_dates)
+```
+
+```
+## Rows: 17,568
+## Columns: 4
+## $ steps    <dbl> 1.49180328, 0.29508197, 0.11475410, 0.13114754, 0.06557377, 1…
+## $ date     <date> 2012-10-01, 2012-10-01, 2012-10-01, 2012-10-01, 2012-10-01, …
+## $ interval <int> 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 100, 105, 110, …
+## $ day_type <fct> weekday, weekday, weekday, weekday, weekday, weekday, weekday…
+```
+
+```r
 levels(imputed_dates$day_type)
+```
+
+```
+## [1] "weekday" "weekend"
 ```
 Having done that, we now have to process our new raw dataset `imputed_dates` to collect and group the data by intervals, and finally we can make a panel plot containing a time-series plot of the 5-minute intervals on the x-axis and the average number of steps taken, averaged across all weekdays or weekendays, on the y-axis.
 
-```{r}
+
+```r
 imputed_dates %>% filter(day_type == "weekday") %>%
       select(steps, interval) -> imputed_weekdays
 
@@ -262,8 +430,13 @@ imputed_dates %>% filter(day_type == "weekend") %>%
 
 
 nrow(imputed_weekdays) + nrow(imputed_weekends) == nrow(actdata)
+```
 
+```
+## [1] TRUE
+```
 
+```r
 imputed_weekdays %>% 
       group_by(interval) %>%
       summarize(TotSteps = sum(steps)) %>%
@@ -276,7 +449,8 @@ imputed_weekends %>%
 ```
 Now we can finally create our plots.
 
-```{r}
+
+```r
 p9 <- ggplot(imputed_weekdays_dailycounts, aes(x = interval, y = AvgSteps)) +
       geom_line(color = "red2", linetype = 1) +
       labs(title = "Average Steps Taken During Each \nFive Minute Interval Across All Days \n on *Weekdays*", y = "Average STeps Taken", x = "Time of 5-Minute Interval During the Day") + 
@@ -307,10 +481,13 @@ p10 <- ggplot(imputed_weekends_dailycounts, aes(x = interval, y = AvgSteps)) +
 gridExtra::grid.arrange(p9,p10)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+
 To make the data a little easier to interpret visually, we can try replacing `geom_line` with `geom_smooth` with a low `span = ` setting.
 
 
-```{r}
+
+```r
 p11 <- ggplot(imputed_weekdays_dailycounts, aes(x = interval, y = AvgSteps)) +
       geom_smooth(color = "red2", linetype = 1, span = 0.125) +
       labs(title = "Average Steps Taken During Each \nFive Minute Interval Across All Days \n on *Weekdays*, Smoothed", y = "Average STeps Taken", x = "Time of 5-Minute Interval During the Day") + 
@@ -340,6 +517,13 @@ p12 <- ggplot(imputed_weekends_dailycounts, aes(x = interval, y = AvgSteps)) +
 
 gridExtra::grid.arrange(p11,p12)
 ```
+
+```
+## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 Looking at these plots, we can see that, on weekdays, the source of our data starts becoming active (at least insofar as they start taking measured steps) a little earlier, has a generally lower average level of activity during the day, and stops being active earlier. This intuitively matches with the concept that people might want to stay up later, potentially going out to various social or entertainment activities, on the weekends. In the future, it might make more sense for the sake of this analysis to also consider counting Friday as a weekend day, as the following day, Saturday, is also a weekend day, and we might expect Friday night's activity levels to be different from Monday through Thursday night's activity levels.
 
