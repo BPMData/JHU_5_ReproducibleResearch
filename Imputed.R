@@ -3,12 +3,16 @@
 actdata <- read.csv("repdata_data_activity/activity.csv")
 
 group_by(actdata, date) %>%
-      summarize(DailyStepCount = sum(steps)) -> DailySteps
+      summarize(DailyStepCount = sum(steps)) %>%
+      replace_na(list(date = 0, DailyStepCount = 0)) -> CleanDailySteps
 
 NoNAsDailySteps <- replace_na(DailySteps, list(date = 0, DailyStepCount = 0))
 
-lapply(actdata,function(x) sum(is.na(x)))
+sapply(actdata,function(x) sum(is.na(x)))
 
+sum(unlist(lapply(actdata,function(x) sum(is.na(x)))))
+
+sum(sapply(actdata,function(x) sum(is.na(x))))
 CleanActData <- replace_na(actdata,list(steps = 0, date = 0, interval = 0 ))
 
 lapply(CleanActData,function(x) sum(is.na(x)))
@@ -113,20 +117,25 @@ CleanActData %>%  select(steps, interval) %>%
       group_by(interval) %>%
       summarize(TotSteps = sum(steps)) -> groupedintervals
 
+max(groupedintervals$TotSteps)
+
+
 # Okay, so that's right, #ChatGPT verified... so the mistake is here, maybe?
 
 
 groupedintervals %>%
       mutate(AvgSteps = TotSteps/61) -> intervalavgs
 
-sum(intervalavgs$AvgSteps)*61
-
 max(intervalavgs$AvgSteps)
 max(intervalavgs$TotSteps)
 
 sum(CleanActData$steps)
 
+
+sum(intervalavgs$AvgSteps)*61
+
 sum(is.na(actdata[1]))
+
 
 # Now let's calculate imputed properly
 
@@ -137,6 +146,15 @@ for (i in 1:17568) {
             imputed[i,1] <- intervalavgs[intervalavgs$interval == actdata[i,3],3]
       }
 }
+
+imputed2 <- actdata
+
+for (i in 1:17568) {
+      if ( is.na(actdata[i,1]) == TRUE) {
+            imputed[i,1] <- interval_avgs[interval_avgs$interval == actdata[i,3],3]
+      }
+}
+
 
 max(imputed$steps, na.rm = TRUE)
 max(actdata$steps, na.rm = TRUE)
@@ -239,8 +257,14 @@ weekdays(imputed_dates[300,2])
 
 daysoftheweek <- weekdays(imputed_dates[[2]])
 
+
+
+
 weekdays <-  daysoftheweek %in% c("Monday","Tuesday","Wednesday","Thursday","Friday")
+
 weekdays
+
+type
 
 sum(weekdays)
 
@@ -255,6 +279,17 @@ sum(weekdays)/nrow(imputed_dates)
 weekends <- daysoftheweek %in% c("Saturday","Sunday")
 weekends
 sum(weekends)
+
+
+daysfactor <- ifelse(weekdays, "weekday", "weekend")
+
+
+daysfactor <- as.factor(daysfactor)
+
+
+length(daysfactor)
+
+imputeddays <- cbind(imputed, daysfactor)
 
 sum(weekends) + sum(weekdays)
 nrow(imputed_dates)
@@ -273,7 +308,22 @@ str(days)
 days[1,1]
 as.integer(days[1,1])
 
-?rbind
+x <- c(1:7)
+y <- c("weekday","weekday","weekday","weekday","weekday","weekend","weekend")
+z <- letters[1:7]
+
+testframe <- as_tibble(cbind(x,y,z))
+
+
+glimpse(testframe)
+
+testframe %>%
+      mutate_at(2, as.factor) -> testframe
+
+
+glimpse(testframe)
+
+levels(testframe$y)
 
 as.integer(days[2,2])
 days[2,2]
@@ -307,6 +357,21 @@ ggplot(only_weekends, aes(x = interval, y = steps)) + geom_smooth() + labs(title
 
 
 # Do we have to group by interval?
+
+# Using our data with an actual factor vector:
+
+imputed_dates %>% filter(day_type == "weekday") %>%
+      select(steps, interval) -> imputed_weekdays
+
+
+
+imputed_dates %>% filter(day_type == "weekend") %>%
+      select(steps, interval) -> imputed_weekends
+
+
+nrow(imputed_weekdays) + nrow(imputed_weekends) == nrow(actdata)
+
+####
 
 only_weekdays %>%  select(steps, interval) %>%
       group_by(interval) %>%
@@ -367,13 +432,78 @@ p6 <- ggplot(weekends_avgs, aes(x = interval, y = AvgSteps)) +
 
 gridExtra::grid.arrange(p5, p6)
 
-p7 <- ggplot(weekdays_avgs, aes(x = interval, y = AvgSteps)) +
+px <- ggplot(weekdays_avgs, aes(x = interval, y = AvgSteps)) +
       geom_smooth(span = 0.125) +
       labs(title = "Weekday Step Pattern, Averaged, Line")
 
-p8 <- ggplot(weekends_avgs, aes(x = interval, y = AvgSteps)) +
+py<- ggplot(weekends_avgs, aes(x = interval, y = AvgSteps)) +
       geom_smooth(span = 0.125) +
       labs(title = "Weekend Step Pattern, Averaged, Line")
 
-gridExtra::grid.arrange(p7, p8)
+gridExtra::grid.arrange(px, py)
 
+
+
+### Graph for the RMD file
+
+ggplot(interval_avgs, aes(x = interval, y = AvgSteps)) +
+      geom_line(color = "red2", linetype = 1) +
+      labs(title = "Average Steps Taken During Each \nFive Minute Interval Across All Days", y = "Average STeps Taken", x = "Time of 5-Minute Interval During the Day") +
+      theme(panel.background = element_rect(fill = "lavenderblush1"),
+            plot.background = element_rect(fill = "lavenderblush1"),
+            panel.ontop = FALSE) +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      theme(panel.grid.major.x = element_line(color = "lightsteelblue4"),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.y = element_line(color = "lightsteelblue4",
+                                              size = 0.75,
+                                              linetype = 2),
+            panel.grid.minor.y = element_blank())
+
+max(interval_avgs$AvgSteps)
+
+interval_avgs[interval_avgs$AvgSteps == max(interval_avgs$AvgSteps),1]
+
+sapply(actdata,function(x) sum(is.na(x)))
+
+sum(sapply(actdata,function(x) sum(is.na(x))))
+
+class(sum(sapply(actdata,function(x) sum(is.na(x)))))
+
+nrow(actdata)
+
+sum(sapply(actdata,function(x) sum(is.na(x)))) / nrow(actdata)
+
+sum(sapply(actdata,function(x) sum(is.na(x)))) / nrow(actdata) * 100
+
+
+# Sizing option tests
+
+# Using aspect.ratio in theme()
+
+ggplot(ImputedDailySteps, aes(x = DailyStepCount)) +
+      geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
+      labs(title = "Histogram of Daily Step Counts Using Imputed Data, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      theme(panel.background = element_rect(fill = "lightskyblue1"), plot.background = element_rect(fill = "lightskyblue1"), panel.ontop = FALSE, aspect.ratio = .75) +
+      theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.major.y = element_line(color = "red4", size = 0.75, linetype = 2), panel.grid.minor.y = element_line(color = "red4", size = 0.25, linetype = 2))
+
+# Using options()
+
+ggplot(CleanDailySteps, aes(x=DailyStepCount)) +
+      geom_histogram(bins = 20, fill = "navajowhite", color = "midnightblue") +
+      labs(title = "Histogram of Daily Step Counts Using Cleaned Data, 20 Bins", y = "Count", x = "Total Steps Taken / Day") +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      theme(panel.background = element_rect(fill = "lightskyblue1"),
+            plot.background = element_rect(fill = "lightskyblue1"),
+            panel.ontop = FALSE) +
+      theme(panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.y = element_line(color = "red4",
+                                              size = 0.75,
+                                              linetype = 2),
+            panel.grid.minor.y = element_line(color = "red4",
+                                              size = 0.25,
+                                              linetype = 2)) +
+
+      ?option2

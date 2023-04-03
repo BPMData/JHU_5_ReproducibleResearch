@@ -1,0 +1,291 @@
+---
+title: "Penguin Plots"
+author: "Bryan Murphy"
+date: "2023-03-28"
+output:
+  prettydoc::html_pretty:
+    theme: hpstr
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+library(wesanderson)
+data(penguins)
+setwd("C:\\Users\\corma\\OneDrive\\Documents\\R\\Google")
+hotel_bookings <- read.csv("hotel_bookings.csv", stringsAsFactors = FALSE)
+data(diamonds)
+```
+
+Ctrl+Alt+I
+
+```{r}
+print("This is what you get")
+```
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+# Google Activity
+[This is what I'm following](https://www.coursera.org/learn/data-analysis-r/quiz/ktFaF/hands-on-activity-your-r-markdown-notebook/attempt)
+
+```{r message=FALSE, warning=FALSE}
+# We added warning = FALSE because IDC that you removed two outlier rows and neither would the person reading this
+
+ggplot(data = penguins, mapping = aes(x=flipper_length_mm, y=body_mass_g)) +
+      geom_point(aes(color = species)) +
+      scale_color_manual(values = c("plum", "salmon", "navajowhite2")) +
+      facet_wrap(~species)
+```
+
+<h1 align="center">This is my prettiest graph</h1>
+
+*** 
+
+```
+This does not work even though it should
+
+---
+<center>
+
+#This is my prettiest graph
+
+</center>
+---
+
+This does work, as you'll see below:
+
+<h1 align="center">This is my prettiest graph</h1>
+
+```
+***
+<h1 align="center">**This** is *my* prettiest ***graph***</h1>
+*** 
+
+```{r, echo = FALSE}
+ggplot(data = hotel_bookings) + 
+      geom_bar(mapping = aes(x = market_segment, fill = customer_type)) + 
+      facet_wrap(~hotel) +
+      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) + 
+      scale_fill_manual(name = "Customer Type", values = wes_palette(4, name = "Zissou1", type = "continuous")) +
+      labs(title = "Customer Bookings by\n Hotel Type and Customer Type 2",
+           x = "Market Segment", 
+           y = "Total Customer Bookings",
+           caption = paste0("Data from 2015 to 2017 / Legend Title Size 8, Text 6")) + # Let's center our title
+      theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))
+```
+
+```{r}
+
+with(diamonds, table(cut,clarity))
+```
+
+From here on out, I'm following [this link](https://www.coursera.org/learn/data-analysis-r/lecture/ix21Z/structure-of-markdown-documents)
+
+Okay:
+
+In RMarkdown, you can create the following types of files 
+
+* HTML
+     + They're cool
+* PDF
+  + Please don't make me have to edit these
+* .Docx files
+  + Proprietary but I like it TBH
+    + Does this work too?
+      + Every two spaces is a new indentation
+
+1. HTML
+  + Please don't make me have to 
+    + Edit these
+    
+![Vibe check](vibecheck.jpg)
+
+
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+
+Why does this break <br> so badly for me  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+Hey <br> it worked.
+
+```
+Using <br> to insert a link break in a column heading in a table
+
+```
+
+*** 
+
+[Now I'm here](https://www.coursera.org/learn/data-analysis-r/quiz/5N6hc/hands-on-activity-adding-code-chunks-to-r-markdown-notebooks/attempt)
+
+```{r ggplot for penguin data}
+
+library(ggplot2)
+
+library(palmerpenguins)
+
+data(penguins)
+
+View(penguins)
+
+```
+
+```{r ggplot for penguin data visualization, warning=FALSE}
+
+ggplot(data = penguins) +
+
+  geom_point(mapping = aes(x = flipper_length_mm, y = body_mass_g))
+
+```
+
+
+[Output Formats Available in RMarkdown](https://www.coursera.org/learn/data-analysis-r/supplement/BS3Mb/output-formats-in-r-markdown)
+
+* pdf_document – This creates a PDF file with LaTeX (an open source document layout system). If you don’t already have LaTeX, RStudio will automatically prompt you to install it.
+
+* word_document – This creates a Microsoft Word document (.docx).
+
+* odt_document – This creates an OpenDocument Text document (.odt).
+
+* rtf_document – This creates a Rich Text Format document (.rtf).  
+
+* md_document – This creates a Markdown document (which strictly conforms to the original Markdown specification)
+
+* github_document – This creates a GitHub document which is a customized version of a Markdown document designed for sharing on GitHub.
+
+
+      Saving your report as a html_notebook by changing the parameters in the heading creates a nb.html file that can be opened in a browser as a regular html file OR in RStudio to see the embedded source code as if it was an .rmd file.
+      
+Testing
+      
+      Testing
+
+
+
+[Learn More Here - rmarkdown official site](https://rmarkdown.rstudio.com/lesson-10.html)
+
+[Here's how to create dashboards](https://pkgs.rstudio.com/flexdashboard/articles/flexdashboard.html)
+
+[Shiny seems dope but I'm definitely not getting into that right now](https://shiny.rstudio.com/tutorial/)
+
+[CRAN Download Monitor (shinyapps.io)](https://gallery.shinyapps.io/cran-gauge/)
+[29 R Markdown formats | R for Data Science (had.co.nz)](https://r4ds.had.co.nz/r-markdown-formats.html)
+
+[Prettydocs]
+
+---
+
+# R packages with templates
+
+Some popular packages with templates for R Markdown include the following:
+
+The vitae package contains templates for creating and maintaining a résumé or curriculum vitae (CV)
+
+The rticles package provides templates for various journals and publishers
+
+The learnr package makes it easy to turn any R Markdown document into an interactive tutorial 
+
+The bookdown package facilitates writing books and long-form articles
+
+The flexdashboard package lets you publish a group of related data visualizations as a dashboard
+
+
+<h1 align = "center"> # More formatting examples </h1>
+
+~~Hunt's Tomato Ketchup is the best~~
+
+Everyone knows Heinz^2^ tomato ketchup is the best
+
+Everyone knows curry~2~ ketchup is the best
+
+Do I need to actually type superscript^2^ to make it work?
+
+Or type out subscript~2~ to make it work?
+
+Actually it's putting ^your^ ^text^ ^between^ ^carrots^ such as ^ that makes it superscript  
+
+Putting it between ~tildes~ ~like~ ~this~ makes it subscript  
+
+You have to put the ^ or ~ around every single word
+
+
+# One hashtag
+## Two hashtags
+### Three hashtags
+**** 
+#### Four hashtags after a line break
+##### Five hashtags
+###### Six hashtags
+####### Seven hashtags is too many it looks like
+######## And so is 8 hashtags
+
+~~Hunt's Tomato Ketchup is the best~~
+
+*One asterisk is italics.*
+
+**Two is bold.**
+
+***Three is both***
+
+
+Everyone knows Heinz^2^ tomato ketchup is the best
+
+Everyone knows curry~2~ ketchup is the best
+
+Do I need to actually type superscript^2^ to make it work?
+
+Or type out subscript~2~ to make it work?
+
+Actually it's putting ^your^ ^text^ ^between^ ^carrots^ such as ^ that makes it superscript  
+
+Putting it between ~tildes~ ~like~ ~this~ makes it subscript  
+
+You have to put the ^ or ~ around every single word
+
+      If you start typing when indented you get a 
+      Block like 
+      this
+      
+```
+If you start typing in a code block without {r}, you can basically make comments.
+
+```
+
+I'm not sure if 
+
+> this block quote looks different than  
+> what you get if you type after an   indent  
+>> Not sure if two arrows does anything either
+
+Here's some latex: $A^2 + B^2 = C^2$
+
+Inline code is like `Hello world` or `r nrow(cars)` cars studied
