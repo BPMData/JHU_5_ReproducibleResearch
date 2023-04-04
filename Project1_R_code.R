@@ -126,7 +126,7 @@ sum(is.na(actdata[,3]))
 
 # Or with lapply:
 
-lapply(actdata,function(x) sum(is.na(x)))
+lapply(actdata,function(x) enoughsum(is.na(x)))
 
 # Replace the missing NAs with the average step count for that interval
 

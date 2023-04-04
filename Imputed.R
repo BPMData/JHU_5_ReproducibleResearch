@@ -239,6 +239,12 @@ for (i in 1:17568) {
       imputed_dates[i,2] <- as.Date.character(imputed[i,2])
       }
 
+imputed_dates$date <- as.Date(imputed_dates$date)
+
+str(imputed_dates)
+
+# Bro that really did work. God damn is that an easier solution.
+
 # Screw this for loop, do it in dplyr
 
 imputed_dates <- imputed_dates %>%
