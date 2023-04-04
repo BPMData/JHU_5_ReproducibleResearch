@@ -18,10 +18,25 @@ library(R.utils)
 gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
                    skip = TRUE, ext = "bz2")
 
-stormdata <- as.tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
+stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
+# Testing spead of read.csv vs fread for a huge datafile
+Sys.time()
+# Time: 17 seconds
+
+Sys.time()
+stormdata2 <- as_tibble(data.table::fread(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
+Sys.time()
+# Time: 4 seconds
+
+str(stormdata2)
+
+
+stormdata == stormdata2
+
+# Yep, it tracks, so for the RMD, use fread. But as_tibble because data table format gave me super weird errors that one time.
 
 glimpse(stormdata)
-
+str(stormdata)
 
 max(stormdata$FATALITIES)
 
