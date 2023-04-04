@@ -1,0 +1,52 @@
+---
+title: "JHU5 Project 2 - Storm Data"
+author: "Bryan Murphy"
+date: "2023-04-04"
+output:
+  prettydoc::html_pretty:
+    theme: hpstr
+    highlight: github
+    keep_md: true
+---
+
+```{r}
+
+```
+
+
+```{r setup, include=TRUE}
+# This is our initial setup block, named setup, with include = TRUE so it will show up.  
+
+# First we'll set any global variables we care about...
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999) # This stops knitr from displaying 5 digit numbers as Scientific Notation.
+
+# And then load our data. 
+
+actdata <- read.csv("repdata_data_activity/activity.csv")
+
+# And the only library call we'll need:
+
+library(tidyverse)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
