@@ -13,7 +13,7 @@ download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl") # 
 
 
 
-library(R.utils)
+
 
 gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
                    skip = TRUE, ext = "bz2")
@@ -103,3 +103,25 @@ stormdata[stormdata$REFNUM == 577615,23]
 max(stormdata$FATALITIES)
 
 # Okay let's stop here.
+
+# Install cacher from a local file:
+
+if(!file.exists("./Proj2data/cacher_1.1-2.tar.gz"))  {
+      download.file("https://cran.r-project.org/src/contrib/Archive/cacher/cacher_1.1-2.tar.gz",destfile="./Proj2data/cacher_1.1-2.tar.gz",method="curl")
+} else {
+      install.packages("./Proj2data/cacher_1.1-2.tar.gz", repos=NULL, type= "both")
+}
+
+?install.packages
+
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
+
+download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl") # Actually download the file.
+
+
+install.packages("https://cran.r-project.org/src/contrib/Archive/cacher/cacher_1.1-2.tar.gz", repos = NULL, type ="both")
+
+
+install.packages("./Proj2data/cacher_1.1-2.tar.gz", repos=NULL, type= "both")
+
+library(cacher)
