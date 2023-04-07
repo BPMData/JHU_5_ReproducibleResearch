@@ -31,11 +31,23 @@ Katrina$EVTYPE
 
 stormdata[stormdata$REFNUM == 577615,23]
 
+Katrina <- stormdata[stormdata$REFNUM == 577615,]
+
+Katrina$REMARKS
+
 stormdata[stormdata$REFNUM == 577615,23] <- 1097
 
 stormdata[stormdata$REFNUM == 577615,23]
 max(stormdata$FATALITIES)
+stormdata[stormdata$REFNUM == 577615,23] <- 0
 
+stormdata
+
+maxfatal <- stormdata[stormdata$FATALITIES == max(stormdata$FATALITIES), ]
+glimpse(maxfatal[c(2,7,8,23)])
+
+glimpse(maxfatal)
+which(colnames(maxfatal) == "FATALITIES")
 
 # Pick up from here with actual transformations.
 
@@ -54,6 +66,14 @@ pie(data, labels = c("Weather Events Which \nHurt or Killed a Human: \n 21930",
     main = "Comparison of Number of Weather Events \nWith Human vs Property Damage",
     col = c("red2","green3"))
 
+
+stormdata$CROPDMGEXP
+
+cropdates <- range(stormdata[stormdata$CROPDMG >0, stormdata$BGN_DATE])
+
+crops <- filter(stormdata, CROPDMG > 0)
+
+range(crops$BGN_DATE)
 # Might not use that chart. Anyway.
 
 # Let's focus on which events hurt humans the most:
@@ -77,29 +97,16 @@ length(unique(stormdata$EVTYPE))
 
 # We're down to 220 EVTypes from 985, but lets reduce it to the 48 being used currently:aaaaaasdas
 
-dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
 
-dictionary <- tolower(dictionary)
-
-summed_human_events$EVTYPE <- tolower(summed_human_events$EVTYPE)
-
-summed_human_events$EVTYPE[47] <- "extreme cold"
-summed_human_events$EVTYPE[67] <- "heat"
-summed_human_events$EVTYPE[217] <- "flooding"
-
-
-summed_human_events$EVTYPE_48 <- dictionary[amatch(summed_human_events$EVTYPE,dictionary,method="lcs", maxDist=20)]
-
-length(unique(summed_human_events$EVTYPE_48))
-
+summed_human_events$EVTYPE_48 <- NULL
 # Length 42. Much nicer. And now:
-summed_human_events$EVTYPE <- NULL
+
 summed_human_events %>%
       arrange(desc(FATALITIES + INJURIES)) -> summed_human_events
 
 head(summed_human_events,10) -> human10
 
-plot(head(summed_human_events,10))
+human10
 
 
 
@@ -118,8 +125,8 @@ ggplot(data = human10) +
 # Not what I wanted, trying again:
 
 ggplot(data = human10) +
-      geom_col(mapping = aes(x = fct_reorder(EVTYPE_48, FATALITIES + INJURIES, .desc = TRUE), y = FATALITIES, fill = "Fatalities")) +
-      geom_col(mapping = aes(x = fct_reorder(EVTYPE_48, FATALITIES + INJURIES, .desc = TRUE), y = INJURIES, fill = "Injuries", alpha = 0.5)) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, FATALITIES + INJURIES, .desc = TRUE), y = FATALITIES, fill = "Fatalities")) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, FATALITIES + INJURIES, .desc = TRUE), y = INJURIES, fill = "Injuries", alpha = 0.5)) +
       scale_fill_manual(values = c("Fatalities" = "red", "Injuries" = "yellow")) +
       theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))+
       theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10)))
@@ -313,22 +320,23 @@ dictionary_hurricaneonly <- c("Astronomical Low Tide","Avalanche","Blizzard","Co
 
 
 
-dictionary <- tolower(dictionary)
+dictionary_hurricaneonly <- tolower(dictionary_hurricaneonly)
 
 summed_property_events$EVTYPE <- tolower(summed_property_events$EVTYPE)
 
 
-summed_property_events$EVTYPE_GROUPED <- dictionary[amatch(summed_property_events$EVTYPE,dictionary,method="lcs", maxDist=20)]
+summed_property_events$EVTYPE_GROUPEDDIST <- dictionary_hurricaneonly[amatch(summed_property_events$EVTYPE,dictionary_hurricaneonly,method="lcs", maxDist=60)]
 
-length(unique(summed_property_events$EVTYPE_GROUPED))
 
+length(unique(summed_property_events$EVTYPE_GROUPEDDIST))
+# Honestly seems pretty good
 # and group again again:
 
-summed_property_events %>%  group_by(EVTYPE_GROUPED) %>%
+summed_property_events %>%  group_by(EVTYPE_GROUPEDDIST) %>%
       summarise(TotalDamage = sum(TotalDamage)) %>%
       arrange(desc(TotalDamage)) -> summed_property_events_refined
 
-length(unique(summed_property_events_refined$EVTYPE_GROUPED))
+length(unique(summed_property_events_refined$EVTYPE_GROUPEDDIST))
 
 
 
@@ -353,7 +361,7 @@ ggplot(data = summed_property_events_refined[1:10,]) +
 # I should just use col?
 
 ggplot(data = neat10) +
-      geom_col(mapping = aes(y = TotalDamage, x = EVTYPE_GROUPED, fill = EVTYPE_GROUPED)) +
+      geom_col(mapping = aes(y = TotalDamage, x = EVTYPE_GROUPEDDIST, fill = EVTYPE_GROUPEDDIST)) +
       theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) +
       theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))
 
@@ -364,8 +372,12 @@ neat10 <- arrange(summed_property_events_refined[1:10,], desc(TotalDamage))
 library(forcats)
 
 ggplot(data = neat10) +
-      geom_col(mapping = aes(x = fct_reorder(EVTYPE_GROUPED, TotalDamage, .desc = TRUE), y = TotalDamage, fill = EVTYPE_GROUPED)) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_GROUPEDDIST, TotalDamage, .desc = TRUE), y = TotalDamage, fill = EVTYPE_GROUPEDDIST)) +
       theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) +
       theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))
 
 # I gotta fix this so hurricane/typhoon and hurricane aren't separate, it's bad
+
+# Fixed it, I'm done, I'm the best
+
+# Got my 3 figures too!

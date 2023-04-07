@@ -5,7 +5,14 @@ library(lubridate)
 
 if(!file.exists("./Proj2data")){dir.create("./Proj2data")} # Check to see if the subdirectory for storing our data exists.
 # If it does not, create it.
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
 
+
+if(!file.exists("./Proj2data/Stormdata.csv.bs2")) {download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl")} # Actually download the file.
+gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
+       skip = TRUE, ext = "bz2")
+
+stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
 
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
 
@@ -285,4 +292,5 @@ summed_human_events$EVTYPE[67] <- "heat"
 summed_human_events$EVTYPE[67]
 summed_human_events$EVTYPE[217] <- "flooding"
 summed_human_events$EVTYPE[217]
+
 

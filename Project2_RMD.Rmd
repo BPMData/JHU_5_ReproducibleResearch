@@ -1,5 +1,5 @@
 ---
-title: "JHU5 Project 2 - Storm Data"
+title: "Analysis of Which American Weather Events Cause the Most Damages to Human Life and Private Property, 1950 - 2011"
 author: "Bryan Murphy"
 date: "2023-04-04"
 output:
@@ -9,11 +9,12 @@ output:
     keep_md: true
 ---
 
-```{r libraries, echo = FALSE}
+```{r libraries, include=FALSE}
 library(tidyverse)
 library(R.utils)
 library(lubridate)
-
+library(forcats)
+library(stringdist)
 ```
 
 
@@ -26,25 +27,114 @@ options(cache = TRUE)
 # And then we'll use a seperate code chunk to load our data.
 ```
 
-```{r load_data}
-fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
+```{r load_data, cache = TRUE}
 
-download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl") # Actually download the file.
 
-gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
-       skip = TRUE, ext = "bz2")
+stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
 
-stormdata <- as_tibble(data.table::fread(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
-
-glimpse(stormdata)
 ```
-<h1 align="Center"> **Data Processing and Cleaning** </h1>
+<h1 align="Center"> **Part 0: Synopsis** </h1>
 
-```{r}
+> Some text will go here  
+> One day
+
+<h1 align="Center"> **Part 1: Data Processing and Cleaning** </h1>
+
+After loading our data, we look at some general descriptive statistics of the data set. We see it has 902,297 observations across 37 variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual data and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th, 2011.
+```{r dates, cache = TRUE}
 stormdata$BGN_DATE <- mdy_hms(stormdata$BGN_DATE)
 
 stormdata$BGN_DATE <- as.Date(stormdata$BGN_DATE)
 
-glimpse(stormdata)
+range(stormdata$BGN_DATE)
+```
+Out of curiosity, we decide to look up the most fatal weather incident in this dataset. A quick subsetting of the dataset by the row which has the maximum number of fatalities in the dataset tells  us that the event with the most fatalities recorded in this dataset is the 1995 Chicago heatwave, with $583$ deaths. While a tragedy, this dataset covers the year in which Hurricane Katarina happens, which should handily exceed the death toll of the 1995 Chicago Heatwave.
+
+```{r maxfatal, cache = TRUE}
+maxfatal <- stormdata[stormdata$FATALITIES == max(stormdata$FATALITIES), ]
+glimpse(maxfatal[c(2,7,8,23)])
+```
+However, a quick look at the Hurricane Katarina data shows us that the incident is set to $0$ fatalities, while Katrina's own *REMARKS* column indicates the event caused $1097$ fatalities! 
+
+```{r katrina, cache = TRUE}
+stormdata[stormdata$REFNUM == 577615,23]
+
+Katrina <- stormdata[stormdata$REFNUM == 577615,]
+
+Katrina$REMARKS
+
+```
+This is a baffling omission, so we'll fix that.
+
+There might be other errors in the dataset, but it seemed very relevant to this analysis to ensure that the single most fatal weather event in the time period that dataset comprises was recorded accurately.
+```{r fix Katrina, cache = TRUE}
+stormdata[stormdata$REFNUM == 577615,23] <- 1097
+max(stormdata$FATALITIES)
+```
+
+That accomplished, we can now begin to look at the dataset to answer the following two questions:
+
+><center> **1: Across the United States, which types of events kill and injure the most people??**</center>  
+
+><center> **2: Across the United States, which types of events have the greatest economic consequences?**</center>
+
+In order to look at these questions in more detail, and to avoid the unwieldyness of dealing with an enormous dataset, we are going to subset our initial data, named *stormdata*, into two smaller datasets, *human_events*, comprising only those weather-related incidents which resulted in at least $1$ human injury and/or fatality, and *property_events*, comprising only those weather-related incidents which resulted in some measurable damage to property (including crop damage from 1993 onward).
+
+```{r create subsets, cache = TRUE}
+human_events <- filter(stormdata, FATALITIES > 0 | INJURIES > 0)
+property_events <- filter(stormdata, PROPDMG > 0 | CROPDMG > 0)
+
+crops <- filter(property_events, CROPDMG > 0)
+
+range(crops$BGN_DATE)
+```
+<h2 align = "center"> Weather Events Impacting Human Health </h2>
+
+We'll start by focusing on weather events in the United States from 1950 until 2011 that had a direct impact on human health - in other words, the data contained within our subset *human_events*. 
+
+Before we go any further, we are going to want to try to group *human_events* by the column *EVTYPE*, so we can try and look at the cumulative effect on human health for specific types of weather incidents. 
+```{r grouping human_events 1, cache = TRUE}
+human_events %>%  group_by(EVTYPE) %>%
+      summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES))%>%
+      arrange(desc(FATALITIES + INJURIES)) -> summed_human_events
+```
+However, when we do this, we notice our dataset covers ***$220$*** different supposed event types. This is a lot less than the apparently ***$985$*** different type of weather events in the original data set, but according to [the NOAA itself](https://www.ncdc.noaa.gov/stormevents/details.jsp), the **Storm Events Database** should only include 48 different types of weather events! Looking at the column *EVTYPE* manually, we notice the reason there are 985 event types instead of 48 is... a massive number of typos collected over the course of over 50 years of data entry, much of which was probably done manually for decades.
+
+```{r cleaning up EVTYPES 1, cache = TRUE}
+length(unique(summed_human_events$EVTYPE))
+length(unique(stormdata$EVTYPE))
+
+head(unique(stormdata$EVTYPE),40)
+```
+For example, in only the 40 entries above, we see **THUNDERSTORM WINDS** written as everything from **THUNDERSTORM WINDS** to **THUNDERSTORM WINS** to **TSTM WIND**, all of which are currently considered seperate event types, even though they obviously are not.
+
+Before we start, we're also going to correct two egregiously unusual misentered event type observations - one event type was listed as "cold" when the official weather formatting should be **"Extreme Cold/Wind Chill"**, which will cause that observation to be mismatched as "flood" simply because flood has the letters O,L and D and is a short word, and one observation is listed as the unnecessarily loquacious "unseasonably warm and dry," which we'll amend to the official event type, **"Heat"**.
+
+Having corrected these outliers, we'll create a vector, *dictionary*, of the NOAA's 48 official storm event types, and then use approximate string matching using the amatch() command to condense all of the 220 event types we currently have into the official 48.We are going to use the **longest common substring** method, as this will help ensure events like "Ex. Cold" get matched to the event type "Extreme Cold/Wind Chill" even though the difference in the number of characters is fairly large, rather than to something like "Funnel Cloud" or "Flood", which is closer in character count to "Ex. Cold" but don't even contain the word "cold".
+
+```{r amatching human_events, cache = TRUE}
+summed_human_events[47,1] <- "extreme cold"
+summed_human_events[67,1] <- "heat"
+
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+
+dictionary <- tolower(dictionary)
+
+summed_human_events$EVTYPE <- tolower(summed_human_events$EVTYPE)
+
+
+summed_human_events$EVTYPE_MATCHED <- dictionary[amatch(summed_human_events$EVTYPE,dictionary,method="lcs", maxDist=40)]
+
+length(unique(summed_human_events$EVTYPE_MATCHED))
+
+```
+You can see we're now down to just 41 event types (because 7 of the official 48 event types never actually caused any human injuries or fatalities). Now we can look at just the top 10 entries in our refined dataset *summed_human_events* to see the 10 storm types in the United States from 1950 to 2011 which caused the most human injuries and fatalities.(We'll also delete the column containing the 220 unmatched event types)
+
+```{r human 10, cache = TRUE}
+summed_human_events$EVTYPE <- NULL
+head(summed_human_events,10) -> human10
+human10
+
+max(summed_human_events$FATALITIES)
 ```
 
