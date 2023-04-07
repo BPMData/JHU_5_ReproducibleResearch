@@ -125,3 +125,164 @@ install.packages("https://cran.r-project.org/src/contrib/Archive/cacher/cacher_1
 install.packages("./Proj2data/cacher_1.1-2.tar.gz", repos=NULL, type= "both")
 
 library(cacher)
+
+
+# Figuring out what years are in the data set:
+
+whatismag <- stormdata[stormdata$MAG != 0, ]
+unique(whatismag$EVTYPE)
+
+tornados <- whatismag[whatismag$EVTYPE == "TORNADO",]
+
+?substr
+substr(stormdata[1,2],1,2)
+
+year(stormdata[1,2])
+
+
+stormdata[1:10,2]
+
+is.Date(stormdata[1,2])
+as.Date(stormdata[1,2])
+as.Date.POSIXlt(stormdata[1,2])
+parse_date_time(stormdata[1,2],"ymd")
+
+as.Date.POSIXlt(stormtest$BGN_DATE)
+
+?as.Date.POSIXlt()
+
+x <- ymd("2012-03-26")
+
+year(x)
+
+x <- stormdata[1,2]
+x
+
+year(x)
+
+stormtest2 <- stormtest
+
+stormtest2$BGN_DATE <- as.Date(stormtest2$BGN_DATE)
+
+stormtest2[1,2]
+glimpse(stormtest2)
+
+year(stormtest2$BGN_DATE)
+
+stormtest2$BGN_DATE <- year(stormtest2$BGN_DATE)
+glimpse(stormtest2)
+
+stormtest2$BGN_DATE <- as.Date(stormtest2$BGN_DATE, origin = "0000")
+
+
+stormtest2$BGN_DATE
+
+unique(stormtest2$BGN_DATE)
+?as.Date
+unlist(stormtest2[1,2])
+
+stormdates <- stormdata[,2]
+
+glimpse(stormdates)
+
+stormdates$BGN_DATE <- as.Date(stormdates$BGN_DATE)
+
+stormyears <- year(stormdates$BGN_DATE)
+
+unique(stormyears)
+
+# Figuring out how to calculate PROPDMG properly. PROPDMG = 25, CROPDMG = 27
+
+match("PROPDMG", colnames(stormdata))
+match("CROPDMG", colnames(stormdata))
+
+range(stormdata$PROPDMG)
+
+summary(stormdata$PROPDMG)
+
+hist(stormdata$PROPDMG)
+
+?hist
+
+hist(stormdata$PROPDMG, xlim = "1000")
+
+?hist
+
+lowpropdamage <- stormdata[stormdata$PROPDMG %in% c(1:1000),]
+
+hist(lowpropdamage$PROPDMG)
+
+
+
+stormtest$EVTYPE <- tolower(stormtest$EVTYPE)
+
+
+stormdata2 <- stormdata
+
+glimpse(stormdata2)
+
+stormdata2$EVTYPE <- tolower(stormdata2$EVTYPE)
+
+fullgroups <- group_by(stormdata2, EVTYPE)
+
+unique(stormdata2$EVTYPE)
+
+stormhealth <- filter(fullgroups,FATALITIES > 0 | INJURIES > 0) %>%
+      summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES)) %>%
+      arrange(desc(FATALITIES + INJURIES))
+
+stormhealth
+
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Seiche","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+
+dictionary <- tolower(dictionary)
+
+stormdata3 <- stormdata2
+
+
+install.packages("stringdist")
+library(stringdist)
+
+stormdata3$EVTYPE_48 <- dictionary[amatch(stormdata3$EVTYPE,dictionary,method="lv", maxDist=20)]
+
+length(unique(stormdata2$EVTYPE))
+
+length(unique(stormdata3$EVTYPE_48))
+
+fullgroups48 <- group_by(stormdata3, EVTYPE_48)
+
+stormhealth <- filter(fullgroups48,FATALITIES > 0 | INJURIES > 0) %>%
+      summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES)) %>%
+      arrange(desc(FATALITIES + INJURIES))
+
+colnames(stormhealth)
+
+gatheredhealth <- gather(stormhealth,EVTYPE_48, VALUE, FATALITIES:INJURIES)
+
+?gather
+
+# No, that's stupid
+
+rm(gatheredhealth)
+
+# Full code for messing around to fix EVTypes for humans:
+
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+
+dictionary <- tolower(dictionary)
+
+summed_human_events$EVTYPE
+
+summed_human_events$EVTYPE <- tolower(summed_human_events$EVTYPE)
+
+summed_human_events$EVTYPE_48_3 <- dictionary[amatch(summed_human_events$EVTYPE,dictionary,method="lcs", maxDist=20)]
+
+table(summed_human_events$EVTYPE_48, summed_human_events$FATALITIES)
+
+summed_human_events$EVTYPE[47] <- "extreme cold"
+summed_human_events$EVTYPE[47]
+summed_human_events$EVTYPE[67] <- "heat"
+summed_human_events$EVTYPE[67]
+summed_human_events$EVTYPE[217] <- "flooding"
+summed_human_events$EVTYPE[217]
+
