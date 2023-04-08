@@ -164,26 +164,26 @@ to 2011.</p>
 health and economic consequences in the United States, but that the
 weather patterns which cause the most damage to human life are not the
 same as those which cause the most damage to property. In particular,
-Tornados, Heat and Lightning cause the most human injuries and
-fatalities, while water-related weather events, particularly Floods and
-Hurricanes/Typhoons, cause by far the most economic damage to the United
-States. Tornados, however, tend to cause a great deal of damage to both
-private property as well as human lives.</p>
+Tornadoes, Heat and Lightning cause the most human injuries and
+fatalities, while in general, water-related weather events, particularly
+Floods and Hurricanes/Typhoons, cause by far the most economic damage to
+the United States. Tornadoes, however,despite not being dependent on
+water, tend to cause a great deal of damage to both private property as
+well as human lives.</p>
 <p>This report concludes by noting that further study is necessary, and
-that in particular, expanding the analysis to the present day would
-offer additional insights. In particular, it is highly probable
-heat-related weather events have been more consequential in the last
-decade, with wildfires becoming more common as global climate change
-leads to drier weather in some states, particularly California.</p>
+that it would be particularly worthwhile expanding the analysis to the
+present day. For example, it is highly probable heat-related weather
+events have been more consequential in the last decade, with wildfires
+becoming more common as global climate change leads to drier weather in
+some U.S. states, particularly California.</p>
 <h1 align="Center">
 <strong>Part 2: Data Processing and Cleaning</strong>
 </h1>
 <p>After loading our data, we look at some general descriptive
-statistics of the data set. We see it has 902,297 observations across 37
-variables. Converting the data in the column named BGN_DATE to a format
-readable by R as an actual data and not a character string, we can then
-also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th,
-2011.</p>
+statistics of the data set. We see it has <span class="math inline">\(902,297\)</span> observations across <span class="math inline">\(37\)</span> variables. Converting the data in the
+column named BGN_DATE to a format readable by R as an actual date and
+not a character string, we can then also see that the data begins on
+Jan. 3rd, 1950, and ends on Nov. 30th, 2011.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stormdata<span class="sc">$</span>BGN_DATE <span class="ot">&lt;-</span> <span class="fu">mdy_hms</span>(stormdata<span class="sc">$</span>BGN_DATE)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>stormdata<span class="sc">$</span>BGN_DATE <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(stormdata<span class="sc">$</span>BGN_DATE)</span>
@@ -192,12 +192,12 @@ also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th,
 <pre><code>## [1] &quot;1950-01-03&quot; &quot;2011-11-30&quot;</code></pre>
 <p>Out of curiosity, we decide to look up the most fatal weather
 incident in this dataset. A quick subsetting of the dataset by the row
-which has the maximum number of fatalities in the dataset tells us that
-the event with the most fatalities recorded in this dataset is the 1995
-Chicago heatwave, with <span class="math inline">\(583\)</span> deaths.
-While a tragedy, this dataset covers the year in which Hurricane
-Katarina happens, which should handily exceed the death toll of the 1995
-Chicago Heatwave.</p>
+which has the maximum number of fatalities tells us that the event with
+the most fatalities recorded in this dataset is the 1995 Chicago
+heatwave, with <span class="math inline">\(583\)</span> deaths. While a
+tragedy, this dataset covers the year in which Hurricane Katarina
+happens, which should handily exceed the death toll of the 1995 Chicago
+Heatwave.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>maxfatal <span class="ot">&lt;-</span> stormdata[stormdata<span class="sc">$</span>FATALITIES <span class="sc">==</span> <span class="fu">max</span>(stormdata<span class="sc">$</span>FATALITIES), ]</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(maxfatal[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">23</span>)])</span></code></pre></div>
 <pre><code>## Rows: 1
@@ -279,11 +279,12 @@ different supposed event types. This is a lot less than the apparently
 different type of weather events in the original data set, but according
 to <a href="https://www.ncdc.noaa.gov/stormevents/details.jsp">the NOAA
 itself</a>, the <strong>Storm Events Database</strong> should only
-include 48 different types of weather events! Looking at the column
-<em>EVTYPE</em> manually, we notice the reason there are 985 event types
-instead of 48 is… a massive number of typos collected over the course of
-over 50 years of data entry, much of which was probably done manually
-for decades.</p>
+include <span class="math inline">\(48\)</span> different types of
+weather events! Looking at the column <em>EVTYPE</em> manually, we
+notice the reason there are <span class="math inline">\(985\)</span>
+event types instead of <span class="math inline">\(48\)</span> is… a
+massive number of typos collected over the course of over <span class="math inline">\(50\)</span> years of data entry, much of which was
+probably done manually for decades.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(summed_human_events<span class="sc">$</span>EVTYPE))</span></code></pre></div>
 <pre><code>## [1] 220</code></pre>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(stormdata<span class="sc">$</span>EVTYPE))</span></code></pre></div>
@@ -309,29 +310,31 @@ for decades.</p>
 ## [35] &quot;THUNDERSTORM WINDS HAIL&quot;        &quot;FLOOD&quot;                         
 ## [37] &quot;COLD&quot;                           &quot;HEAVY RAIN/LIGHTNING&quot;          
 ## [39] &quot;FLASH FLOODING/THUNDERSTORM WI&quot; &quot;WALL CLOUD/FUNNEL CLOUD&quot;</code></pre>
-<p>For example, in only the 40 entries above, we see
-<strong>THUNDERSTORM WINDS</strong> written as everything from
-<strong>THUNDERSTORM WINDS</strong> to <strong>THUNDERSTORM
-WINS</strong> to <strong>TSTM WIND</strong>, all of which are currently
-considered seperate event types, even though they obviously are not.</p>
-<p>Before we start, we’re also going to correct two egregiously unusual
-misentered event type observations - one event type was listed as “cold”
-when the official weather formatting should be <strong>“Extreme
-Cold/Wind Chill”</strong>, which will cause that observation to be
-mismatched as “flood” simply because flood has the letters O,L and D and
-is a short word, and one observation is listed as the unnecessarily
-loquacious “unseasonably warm and dry,” which we’ll amend to the
-official event type, <strong>“Heat”</strong>.</p>
+<p>For example, in only the <span class="math inline">\(40\)</span>
+entries above, we see <strong>THUNDERSTORM WINDS</strong> written as
+everything from <strong>THUNDERSTORM WINDS</strong> to
+<strong>THUNDERSTORM WINS</strong> to <strong>TSTM WIND</strong>, all of
+which are currently considered separate event types, even though they
+obviously are not.</p>
+<p>Before we start, we’re also going to correct two particularly
+problematically misentered event type observations - one event type was
+listed as “cold” when the official weather formatting should be
+<strong>“Extreme Cold/Wind Chill”</strong>, which will cause that
+observation to be mismatched as “flood” simply because flood has the
+letters O,L and D and is a short word, and one observation is listed as
+the unnecessarily loquacious “unseasonably warm and dry,” which we’ll
+amend to the official event type, <strong>“Heat”</strong>.</p>
 <p>Having corrected these outliers, we’ll create a vector,
-<em>dictionary</em>, of the NOAA’s 48 official storm event types, and
-then use approximate string matching using the amatch() command to
-condense all of the 220 event types we currently have into the official
-48.We are going to use the <strong>longest common substring</strong>
-method, as this will help ensure events like “Ex. Cold” get matched to
-the event type “Extreme Cold/Wind Chill” even though the difference in
-the number of characters is fairly large, rather than to something like
-“Funnel Cloud” or “Flood”, which is closer in character count to “Ex.
-Cold” but don’t even contain the word “cold”.</p>
+<em>dictionary</em>, of the NOAA’s <span class="math inline">\(48\)</span> official storm event types, and then
+use approximate string matching using the amatch() command to condense
+all of the <span class="math inline">\(220\)</span> event types we
+currently have into the official <span class="math inline">\(48\)</span>.We are going to use the
+<strong>longest common substring</strong> method, as this will help
+ensure events like “Ex. Cold” get matched to the event type “Extreme
+Cold/Wind Chill” even though the difference in the number of characters
+is fairly large, rather than to something like “Funnel Cloud” or
+“Flood”, which is closer in character count to “Ex. Cold” but don’t even
+contain the word “cold”.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>summed_human_events[<span class="dv">47</span>,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;extreme cold&quot;</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>summed_human_events[<span class="dv">67</span>,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;heat&quot;</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -346,13 +349,11 @@ Cold” but don’t even contain the word “cold”.</p>
 <span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(summed_human_events<span class="sc">$</span>EVTYPE_MATCHED))</span></code></pre></div>
 <pre><code>## [1] 41</code></pre>
-<p>You can see we’re now down to just 41 event types (because 7 of the
-official 48 event types never actually caused any human injuries or
-fatalities). Now we can look at just the top 10 entries in our refined
-dataset <em>summed_human_events</em> to see the 10 storm types in the
-United States from 1950 to 2011 which caused the most human injuries and
-fatalities.(We’ll also delete the column containing the 220 unmatched
-event types)</p>
+<p>You can see we’re now down to just <span class="math inline">\(41\)</span> event types (because <span class="math inline">\(7\)</span> of the official <span class="math inline">\(48\)</span> event types never actually caused any
+human injuries or fatalities). Now we can look at just the top <span class="math inline">\(10\)</span> entries in our refined dataset
+<em>summed_human_events</em> to see the <span class="math inline">\(10\)</span> storm types in the United States from
+1950 to 2011 which caused the most human injuries and fatalities.(We’ll
+also delete the column containing the <span class="math inline">\(220\)</span> unmatched event types)</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>summed_human_events<span class="sc">$</span>EVTYPE <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(summed_human_events,<span class="dv">10</span>) <span class="ot">-&gt;</span> human10</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>human10</span></code></pre></div>
@@ -369,9 +370,9 @@ event types)</p>
 ##  8       1161     1275 hurricane        
 ##  9         89     1975 ice storm        
 ## 10        133     1488 thunderstorm wind</code></pre>
-<p>Before we do anything else, we’re going to be petty and recapitalize
-our event types, as we put them all into lower case for the sake of
-making our approximate matching work better.</p>
+<p>Before we do anything else, we’re going to recapitalize our event
+types, as we put them all into lower case for the sake of making our
+approximate matching work better.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>capwords <span class="ot">&lt;-</span> <span class="cf">function</span>(s, <span class="at">strict =</span> <span class="cn">FALSE</span>) {</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>      cap <span class="ot">&lt;-</span> <span class="cf">function</span>(s) <span class="fu">paste</span>(<span class="fu">toupper</span>(<span class="fu">substring</span>(s, <span class="dv">1</span>, <span class="dv">1</span>)),</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                               {s <span class="ot">&lt;-</span> <span class="fu">substring</span>(s, <span class="dv">2</span>); <span class="cf">if</span>(strict) <span class="fu">tolower</span>(s) <span class="cf">else</span> s},</span>
@@ -381,8 +382,8 @@ making our approximate matching work better.</p>
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>summed_human_events<span class="sc">$</span>EVTYPE_MATCHED <span class="ot">&lt;-</span> <span class="fu">capwords</span>(summed_human_events<span class="sc">$</span>EVTYPE_MATCHED)</span>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(summed_human_events,<span class="dv">10</span>) <span class="ot">-&gt;</span> human10</span></code></pre></div>
-<p>Now we can try actually plotting the 10 events which are most
-destructive to human life in the United States.</p>
+<p>Now we can try actually plotting the <span class="math inline">\(10\)</span> events which are most destructive to
+human life in the United States.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> human10) <span class="sc">+</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_col</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(EVTYPE_MATCHED, FATALITIES <span class="sc">+</span> INJURIES, <span class="at">.desc =</span> <span class="cn">TRUE</span>), <span class="at">y =</span> FATALITIES, <span class="at">fill =</span> <span class="st">&quot;Fatalities&quot;</span>)) <span class="sc">+</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_col</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(EVTYPE_MATCHED, FATALITIES <span class="sc">+</span> INJURIES, <span class="at">.desc =</span> <span class="cn">TRUE</span>), <span class="at">y =</span> INJURIES, <span class="at">fill =</span> <span class="st">&quot;Injuries&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>), <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
@@ -397,21 +398,22 @@ Next is Excessive Heat, a perennially overlooked source of human misery,
 suffering and death, followed by Strong Wind, Flood, and Lightning. Of
 particular interest are the next three event types, Heat, Flash Flood
 and Hurricane, because we notice their bars are almost entirely orange;
-this is because the graph was “stacked” by placing Injuries on top of
-the Fatalities bar (which was invariably smaller for all event types in
-the top 10), and making the Injuries bar transparent.Thus, the red
-Fatalities bar underneath these event types is almost the same size as
-the Injuries bar. In other words, Heat, Flash Flood and Hurricane don’t
-hurt as many people as, say, Strong Wind or Flood, but they kill far
-more people.</p>
+this is because the graph was “stacked” by placing the Injuries bar on
+top of the Fatalities bar (which was invariably smaller for all event
+types in the top <span class="math inline">\(10\)</span>), and making
+the Injuries bar transparent.Thus, the red Fatalities bar underneath
+these three event types is almost the same size as the Injuries bar. In
+other words, Heat, Flash Flood and Hurricane don’t hurt as many people
+as, say, Strong Wind or Flood, but they kill far more people.</p>
 <p>It hardly seems fair to weight Fatalities and Injuries equally, so we
-can call a <em>“Weighted Index of Human Suffering”</em> by assigning
-injuries a weight of 1 and Fatalities a higher weight. As far as I know,
-most of the literature on this topic presumes you know the actual nature
-of the injury, i.e. for the extent of calculating the actuarial payout
-for an insurance claim,but since the NOAA doesn’t track that data, we
-can assign Fatality a generic weight of 10 a fatality is one order of
-magnitude more important than an injury.</p>
+can create what we might call a <em>“Weighted Index of Human
+Suffering”</em> by assigning injuries a weight of <span class="math inline">\(1\)</span> and Fatalities a higher weight. As far
+as I know, most of the literature on the topic of determining an
+equivalency ratio between injury and death presumes you know the actual
+nature of the injury, i.e. for the sake of calculating the actuarial
+payout for an insurance claim,but since the NOAA doesn’t track that
+data, we can assign Fatality a generic weight of <span class="math inline">\(10\)</span>, ensuring that a fatality is
+considered one order of magnitude more important than an injury.</p>
 <p>Now, if we plot our data again, we see the following:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>human10_adj <span class="ot">&lt;-</span> human10</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -430,22 +432,22 @@ magnitude more important than an injury.</p>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAACLlBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrYAv8QzMzM6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kLY6kNtNTU1NTW5NTY5Nbo5NbqtNjshmAABmADpmOgBmOjpmOmZmOpBmZgBmZjpmZmZmZrZmkJBmkLZmkNtmtpBmtrZmtttmtv9uTU1uTW5ubk1ubm5ubo5ubqtujo5ujqtujshuq6tuq8huq+SGoNOGudOGueuObk2Obm6Obo6ObquOjm6Ojo6OjquOjsiOq8iOq+SOyI6OyMiOyOSOyP+QOgCQOjqQOmaQZgCQZjqQZmaQZraQkDqQkGaQkLaQtpCQtraQttuQ27aQ29uQ2/+gamqgaoaghoagubmg09Og0+urbk2rbm6rbo6rjk2rjm6rjo6rjqurq46rq8irq+SryKuryMiryOSryP+r5OSr5P+2ZgC2Zjq2Zma2kDq2kGa2tma2tpC2ttu225C229u22/+2/7a2/9u2//+5hmq5hoa5oIa50+vIjk3Ijm7Ijo7Iq27Iq47Iq6vIyKvIyMjIyOTI5MjI5OTI5P/I/+TI///bkDrbkGbbtmbbtpDb25Db27bb29vb2//b/7bb/9vb///kq27kq47kq6vkyI7kyKvkyMjkyOTk5Mjk5OTk5P/k/8jk/+Tk///r06Dr69Pr6+vy8vL4dm3/tmb/yI7/25D/27b/29v/5Kv/5Mj/5OT//7b//8j//9v//+T///9Go8kCAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2di58b11XHZzdZRGSHNilKgGxcCiV9WLTrEpPwcHBbm3rVUiCYhOVpNzYhDYkVCqU12RayjklCjFWH0mTXOG5dMGkry6yzlua/49577rxnpDnr0ejM6Pf7JF6N9t75Hc18dd931nEhSLCcWQcAQeMEQCHRAqCQaAFQSLQAKCRaABQSLQAKiRYAhURrloB2G+bHzX2O84Gz3pu9xXXzc2e55b01/Pt7Heeuj21G8i6smdTOkn572FmK/NbT4BfXM3/nGzpWjQnh6pPFPkA8iHd8r4hrPITuB56yr976cMtNU8Sr77TpxUsqyE3zT57o6qEZAtojJHaWNR2L3uVNAjrsEECRm2xvWtcxjOwsp9OlT1YYoL3FOAKJIIY5AaUMiqqmkw5oxKtrQ+vrIPsZkSajq4dmBujwJXuhe87Pbg6/5t+oJKB9Z0mVrzc7Xjlif90w/z5ikvUjvwuUC9C8dzaZMBFEhlcC0IV76cP17mpOBnTQ/Bni2XzKcR+1jpoVoDvLC58wt5duXnALk4D26PZES0nK0F/4k07DyxQ0FS6pJsHCx6nobamUb+/Th26QZNhp9JzFsxFD/6UxClIuff3e4GTu8Mvq1Puzggi86FeXms7da+bAD0Gru/iHtlHwiAFUm92to7Fnt15+VN8wqbq6ovklqm1Cn9VYRHPUSTMD9A82vfLHcNf1MEkrQdOuvEnXW9r0C0lVXSppmG2l3fYAvXufOXSDJMPOXU2vyRACdNBsu1RGhVLGTubYc6UGEXiZkPr+SfwQXPqw39izpv32GvT6MbN2BDe/5RACNPis1gKATkGE5oAqOVtMpnaSXnIW7vvj78Vya5hUQWhw0mmHHV2wvdVsqFe6bByoV7aK1yh+x2lEkoQKKNsENYAYEHRJGEqpuiSmuaxPNmh+aJNOnRFE4KVxVee85ITfJnUXX+6YMrGhP7367X7qaQVnD31r9LmpXver+HB41gJVfPHKDaj73S83QxWr6/9e86F/UpnXCrL/59d/v+n4gOq3tFmQhN6zhgGgJoq0lCZUAvSuR76ZHUSQWgM68BqYoZMYqa9AVxG7s9zWSSzv3YW14Owh3HTdQll9QIPwfAsAWrzyA6o0fOvDsSpM3eK+TtulGrYfcEYVYAAoNXIboSThXku0P9KyJVY0pc5NCXU969x/NiOIIDUBauv00Eko1+J6X8XZJ8BsMv2Of/YgKPth9LEPaBCebwFAi5fXBjXcBW1QfwQm1qSKd4X7VAzpO6MHVIObtrPs3PdH//j28i4A1e93I7THAXXf2hceFIsFkR9Q/bG7VFSHAPXPHgTlFfAtAFq2dlJ78d4wSs/rUuws2191o7dg0PykYdv+DG4VvQq1QT06giRZgKqvx9M6qnjKEKBK3/09J/CKBBEHtJU4if9JVEep2XajVXxwdt/LRmouQqiKD/xRxU9NXv9dj4O+5Nffg6ZpbF5qenW+SqArveGlZrQEHXbuM11h+1N1F57So6W62lTdmpv7dL+k5/d8CBovSSagg+ZHNQXxlASorpVVsO7wa35siSDCgJoezGBZv0gC2l/4ZdOmDXeSgrP7LR5vCKNrzINOkh+etQhy1EyzBzQ2kxSu0+iWUAJvVCUYpu7ZTF0aMOp72UIzTz0aB/XoCCUJAWr9zNlUXnPSWEoCNBhmCucOBxEF1J6lnVqCqk/VsCVgfJjJBk5JLXd9pxEaqPfD8y2CHDXT7AENhqmtVHfIcWi2mng0c/ELpmcSBrTvzwDSz4E6z137vRM+ZSjY5zTeCdHhJckE1Jt/jaU0ufXJNs1Q+oc2M4KIAapH0Rf2p1fxCum2V0UPIgP1+uzGy3WDES09EBCaSfI/q2fh56ibsJoJEi0ACokWAIVEC4BCogVAIdECoJBoVR/QjMn7gnLTSr6MnSNj9p1Ek4eO0rZmBANQUFwANAegWQvzx+w7yQQ0bUoSgGYLgN4BoPn2nbgA9A5UL0DDC0Nal5oLH9fTiPdrNuwukGALR0rulF0jrtmq6cR2jngas+8kmEn6GM0rUWZv5Xt0y8Y3AWim6gvofXqR8/GmXRjq+NPi3qtk7pRdI2FAo9s2gtyp+06o5KWzNII9HxbQmNHd+wBolmoAqDeX7kQBdfa7lwgGvZzI2wUS2sKRkju5ayRUxUe3bRiN23eytLmzvPCU3o3aCGemc3nJgiRQuuoLaMOuorTtP7sLJL77Ipw7bddICNBoRqPsfSc6Hy2VI8xjG0eiWzaCTU5QXDUANKsN6uHU9ateD7hQryScO23XSKyTFO/OZO470clpiWawtslf9hwks8u10AbN1HwAGuwCyQdoLH02oJn7TgBoQaoXoLTS0t+X6QMa7AIZB2jarpEJgGbuO4lX8RFA41s2sp7cA9UPUMcM5SQB9XaBjAM0bdcIARrZORJW5r6TeCcpsnEkSKaS7KeAoXTVDNC+N2oTBTTYBTIO0LRdI95wUXTnSJ59J9FhpsjGkfiWDQwzZatmgLrfaTr3v5PsJPm7QMYCmrJrxKSP7RzJs+8kGKj/RLTlS1szgi0bb+1z7n4ZbdBMVR/Q8jV8aY2RendTsJAVAOVrcH++3WmD5k9tusNu9hQ9NFkAdHpK7FGG+AKgU1R8jzLEFwCFRAuAQqIFQCHRAqCQaAFQSLQAKCRaPEB/NE7jf3vn6WFQePrxGaaEHE8AtE4GALTIqyPu9lbfAIAWeXXE3d7qGwDQIq+OuNtbfQMAWuTVEXd7q28AQIu8OuJub/UNAGiRV0fc7a2+AQAt8uqIu73VNwCgRV4dcbe3+gZzDeg9SlMMBILShBK0TgZzXYJqFXp1xN3e6hsA0CKvjrjbW30DAFrk1RF3e6tvAEBJP2GorKsJg12kB6AAtFQDAEoCoEINACgJgAo1AKAkACrUAICSAKhQAwBKAqBCDQAoCYAKNQCgJAAq1ACAkgCoUAMASgKgQg0AKAmACjUAoCQAKtQAgJIAqFADAEoCoEINACgJgAo1AKAkACrUAICSAKhQAwBKAqBCDQAoCYAKNQCgJAAq1ACAkgCoUAMASgKgQg0AKAmACjUAoCQAKtQAgJIAqFADAEoCoEINACgJgAo1AKAkACrUAICSAKhQAwBKAqBCDQAoCYAKNQCgJAAq1ACAkgCoUAMASgKgQg0AKAmACjUAoCQAKtQAgJIAqFADAEoCoEINACgJgAo1AKAkACrUAICSAKhQAwBKAqBCDQAoCYAKNQCgJAAq1ACAkgCoUIO5B9SKA2jRAUPzJZSgdTKY+xLURg5AhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqEGdAd1Zbqv/JqS2kQNQoQYAlARAhRrUGVC353haXKd3dpa9dxrq6B4lm5QDaOmfCKqVwm3QRAna06juLLeGnQa9Yb9aKEGFGtS6BE3KAttfXO/bQtVGDkCFGtQeUFPNt7wjAFo1g7oD6lXpiePe0qZ5w0YOQIUa1BzQoMT03unrErXt9hbW6NhGDkCFGswdoHHZyAGoUIOaA5qo4hOykQNQoQZ1BzTWSXIHzci4KACVblB7QKPyhz992cgBqFCDOQM0OfVpIwegQg3mDNBhB4BWy2DOAE32523kAFSowZwB6i0WQSepKgY1B3T4vUmpbeQAVKhBzQG1I6DDL2GgvqIGZQA6eTqHkWWwZ829edb8yFCkiu87S5vqH3Mes4AZVXy1DKoIqIYzL6DU6owPfoZkIwegQg1qD6ieOwomkjKHmX6aobKuJgx2kf7OADVYGcSONx2npecd23b6seXSm+04oMMO1ciRVK3BnicdL/E4QFXuhqnmI6EA0MoYzAjQpkKmp7npLa6bX6uf9CaVmUEWMznZW9r0U9kSNJR4DKA7y3pZ3c6yn7DnswpAK2FQDqBezyQA1BScbXPwfxoZ/02quoMsfVqO1PZTeYAGiccB+iv08+9im+YSnSQAKtRgVlX8msXL/KMXES+E3gxnsTszW6FUfht0MqCTZSMHoEINBABqquHImxFAbZ0cSsUCVAHeTtTrALQyBgIA7Wt8+lklaN/uzQil4gDaXXp7uR1eZBcH1kYOQIUalAuontgZdhZigOqisZkF6LCjR9oXwqn0L3MCah8uEgxXJYC1kQNQoQYlj4PqsaJPPhxrg3ZV2/Lp5XY6oGaYSZeioVRdp7FLQBPAAlDhBmUAWrKie5J0iRnsSQKgVTOoO6C0zTiYSooBC0ClG9Qe0LhiwAJQ4QZzB2hcNnIAKtSgzoAGz1oMLbfDXHy1DMoAdMzKo6huntX/6m67/wjPXSjtwQ0GSwBaQQNJgIbS5WY6RdmPvkk+0BaASjeYK0Cx3K56BiUBGlkAatZy6tlGu8TTVOoNc9QKsqh/u7qS7zX89N7S0PyARp7NhCq+ggZlARpeADpo0jJPb4mn9zpRgtJEUttL7y0N5QDqPW4RgFbUoDRAQwtAEwtBLZgJQA21e9e99P1Qhyc3oGGhDVo9g9Kq+LVg8t38NKDREk+vhZhsg/Ya+j8vfbA0dJeAog1aPYNZAuot8cwGdLD35U47AHRi7Z4ENPG4xbhs5ABUqMFMADVV9t71yELQVECHnUf2rrt++oW1xLknABp/3CK2fFTNYDaAUqfHW+LpdYBC9a/Hak+P1gedJFoaygA0vcW683BwDhs5ABVqMJsq/kmaJrJLPO0wkz5uBFnoJ/WPbHpvaWh+QJP74I36QWPBRg5AhRqUAWgKsPkSmoqdPWofffRNausT60ErYyAc0F6Ll14rWsXH25xGXZSgVTEQDagZ3r+zEjQmC2yonWAjB6BCDWYB6JSF9aB1MgCgJAAq1KDOgMYXLLvmDyDqd7HlozIGdQY0IT2GSgOu2DRXFYN5AnTYadmR1R568VUxKAPQH6ereDRJmYDS+hTdg0+OjnIAnVbg0Iz049QHac8IUFN4YqC+MgallKBCANXznrR6BAP1lTGYJ0B16WmaoP3Qs8Nt5ABUqEGdAU0OM3X1CJN+vF6Q2kYOQIUa1BlQrd6kbSI2cgAq1KDmgE7+Czg2cgAq1ACAkgCoUIPZA0q7hlq0zt0+9kZ1ss2qd7MclLYm0fv/ofd42vVIuomZBl7mvngAWkEDAYDutZD1P9oKHZsjH9D14B8vfTCqOQ7Q8L54AFpBAzmADr/49Ec2/WM6Ggeo+RneXZQO6CTZyAGoUAM5gA4+uNlt+8d0NA5Qs4UuTWMBTWxDtpEDUKEGAgBt0pMWey233/ABpaNUQJu2lapr77QtdOP+TlJ8GzIAlW4gAFCC0HSPFj0Q7dG4EpQyp+wGGfd3kvBkkaoZiAFU1ekKp7YHIh2NA9QUtybHGEDjf9UDf467agZiAO21LXTm2B5N7MVP6iQl/uxMYkTURg5AhRpIAXT4JfMUecWbPvaOjpv2ZiOlDeq0zTjoxDZo4u8k4dE31TKYPaCFa+zfSUrIRg5AhRrUHtBJspEDUKEGNQc0MRePcdCKGcwZoMNOS3Xkw4NNNnIAKtSg1oAGj/wOj4N2W3i6XXUMSgF0drs64wPz+rjXwKa56hjUHNCEuoZO7IuvjEEpgKbe5nIAjXeK9MMbuni6XXUMag5ocnFIXDZyACrUoOaATv6rSjZyACrUoOaAJhaHYBy0YgY1BzS+OATrQatmUGdAkw9uwHrQyhnUGdAUYT1o1QxmD6j312K9zUjeik9/ZZ0q/QY5dhvnAhTrQatmIARQf69HFFDanrS0mWe3cSqgQS1v257oJFXMQAage/+hkQ0ovZi42zgVUP/BDbZ3ZB6yHJGNHIAKNRAC6Lq/x3hSCZq52zgV0GA1E9Xt6CRVzUAKoDsf2cxqgy5t5tptnAtQdJKqZiAFULfXSi9BzTPl8+w2TgU0eDaTbbZGTgNA5RuIAXT4xeMel9TCHHyQytSe7cVP2m2cDqj3bKYeFbrYNFc1AzGAqv714j8pMvVa4m6DujP2GQ6NXLuNMwCdJBs5ABVqIAdQXVR6zcsu7cS0dX2zlWe3MQCtpcHsAS1coanOdrxKRxVfNYM6A5qpcAvBRg5AhRrMJaDYNFcdg9oDGn38ohU2zVXGoO6Axh6/6L+LErQiBqUAOtNtx5Gn29lOEjbNVcagDEBL1tjHLyZkIwegQg1qDmj88YtJ2cgBqFCDugMafvxiyhYQACrdoM6A7iyn1OzxHr2NHIAKNagzoGbGNL49BIBWy6DWgGqZOfwQpGFA71GyLzmAlvEhoPoqZSapFxCKErRaBrUvQc2fXAp14gFotQzqDmiXtokEAqDVMqg1oL2UlaMAtFoGdQY0+XhljINWzqDOgOrm59hnkGjZyAGoUINaA+qaUabxj7C1kQNQoQZ1B9TVLdFxW5hs5ABUqMEcAKqreqxmqqpB7QGNzyTFZSMHoEIN6gyoHqKf8KhGACrdoM6Apq5mistGDkCFGtQZ0FyykQNQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlMQG9Cf5VeDlF8cPAOWLB6gVB1CTgQFooZ8OqrxQgtbJYO5LUBs5ABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACUBUKEGAJQEQIUaAFASABVqAEBJAFSoAQAlAVChBgCUBECFGgBQEgAVagBASQBUqAEAJQFQoQYAlARAhRoAUBIAFWoAQEkAVKgBACVNHVBG+jFEi+MHgPJVE0ALARqAxn4pQQD0Du4vAJ2+5hRQtkEJPMwgPQCtC6DiAgKgqQKgUgICoKkCoFICAqCpAqBSAgKgqQKgUgICoKkCoFICAqCpAqBSAgKgqQKgUgICoKkCoFICAqCpqg2g3E/ADmiKVwiAZmu3gE79dk2RHwA6UwHQXBGxA5r6JwagaSoLULYBAAWgWgAUgJYsAJrLAIDOSgA0lwEAnZUAaC4DADorAdBcBvIAnWJ67xswJeR4AqC5DNi3d4ofAIBma24BZQc0xfQlDS0D0GLSA9ApGQDQIq/mtA3EBQRAUwVApQQEQBO6R2mKgUBQmnZVgqar8s/lqL4BxkGLvDribm/1DQBokVdH3O2tvgEALfLqiLu91TcAoEVeHXG3t/oGALTIqyPu9lbfAIAWeXXE3d7qGwDQIq+OuNtbfQMAWuTVEXd7q28AQIu8OuJub/UNCgzovW/91pSQ4wmA1smgyIDe+9PVKTHHEgCtk0GRJeif/8UpCYQC0DoZFBXQe//8V//7Gz9yNwQQCkDrZFBUQN/+y2/95p/9i3v5b6dEHUM8QMeKuxiPvXgPBkWnz8iw9ZA72jhy6NeOcE83BUkD9MZjr0/XoMgM4gyKCOjWc4rOVXf0Bvdc05EwQEevfvrxqRoUmkGcQREBbXzqjCFUiGQBOjr95omVTEIrz08FAH3/h+4rv+CKKT8LBbQAbR/d/tzJT68cnXUc86uNlYP/cyK7EitfsgAdXfvr6//14qyj8MSu6ATVjLvV7c//4NDvPiDoY0gCdHT1jdHJZx+bdRiBRie5hHIzyNKtJ864W6vuu7/90KwjCSQIUNUA3Xh8dG3WYQQanX6eN5nCziBNo42D//0712cdRURCAB2dPKMboJ+/Iub+js6f2VZtYValzc4gT7cOHZb1AYQA6t4+dGZ04qB7I//V2TrGc1ANCE7ycy9uHPvKBd5kyoibYbr64a5yXZHVRRUB6Pvq/62VM7cOreRugOralEWoaUDkTXzruV1MpqhvwC0Zsy9Go9OfPcirrXcH9JQ1JUB5xdXWQffyUVWGMrKY2jQ3oaa+ZjQgNj71InsyRX0DLh/kZJiuRq8ddW9wCOUDXYqmAyj3Zm3poc/bz+U+/fkzt5+46F4+nBdpXV/nb0CYwWr2kJH+ymxJab+NTh346hMX3Bv5q2s20CVpCoCqW8u+WVusskfxtrp9aOXods7rb+vrvA0IGqxmlZ+qxtBfmZzfgOmPl2498JB7WxGaX+eYQJelaZSgo5NfyH+zrDiEGt5UDfz6Zy/mi+fVFVZ9zRusvvWCrTEYDdCpj5eOXnlwlVMlnTrMBbosTaMEVf0XTveC2qu5xz/PXbCLbUav56uQ9AT/g7mB4A5Wbz9xeJVbvXPHS8ct8cqyeCX/R9ZfeX1N8wNdogoHdHT+q7zRQFb3Wp//8CqvitQT/Cfyz43wBqu3n7g4OrHKqN4pIt4VGrfEKzXDVf31ZTRR1AWVOk1bNKC6uPo5xmjg5YvM8flzL6qygdc+5E7wcwarVdPkyqOnVjnjS6Orr7PGS8cv8UrPwBtPUBFt8K5peSoaUFNcPZD/bm0/zhuf1+1PVu01unqBP8HPGKzeWjnI6/RofA5wxkuZS7xuPPYqs4uqI3pUJp4FAzo6f4ZXXJ1/c3T6Imd83vaO8l/N0el/u+AyJvi581PUveOUPuwRDt4lvT565teZXVRRA2RxFQqoHv5hFFequ3P+wLOckQ3VW+CUVucumIt/OfcMAHt+Sos1RDa6+hoPH94Sr+0Dh1bdrUcZBbS6pMwWdLkqElAa/uEUV6us2nR0/vlnHmeUVqNTqj+lm3u5AeXNT6mATEOSsQCLXb/zlnjdVr270RvXtxhLvkfqkkqaoY2rOEBHp9jTgz/gtN02jun5oC1Gb8EMnuS/+Nz5KQoodzR6vJRXm/KXeG0fHW38/LOPcuaDrrmcS1q+igPUDp/n1+j03/w7Z7BlQxscy106mC8Mq0HAnJ+yAeU8uxkvdXm1KX+J18bKMXf0lXzzF1rqHlx0OQVu6SqwBOWWnzdW3z20wmjxbT3AMrANjtwZuPNTvE9M46UuozbdxRIv0pW8JeLo1Bl9Dw7k53kGKgxQM5bGyXDt9qGD11n9l2c4e2UuH2N+YZjzU0rXGOWzHS/NH85ulni5ulmQvzhUX0nePZiFigFUtX2YY2mmbrn8bP4OsK54X2HslVGVL6/Bwf2C6U/AKdC546XcJV7cFdl2zQrnHsxChQCq6i/uWBrVLXmXyJ674PLW111WpeHJY6wvDPMLdv5ZZu3IHS/lLvFiThn7X0mRy5QDFQHo9qHPXOe1/kdXX+PVLYr9/P0X1fvVhQNjMvHUGfZyjzdPPMisHXm8sXNwt3RpoB+TOn8UqABAFZtXPnOdNRutv+y56xbdWzC1Ue7+i+79bqzkv7u6McZd7rH9uZMrzNqRv2GVM8L67q8y+vtmza6kPYqZKqiTpAhlpKZrk7duMRUXdbDzmNjeLyMcc/LcX7BbL+hQzPSjkNrx/etmSvd11pTxScYWg1mqqF48g9DR1TeZg3ua0HfzVtjs3i9v/lSPF2lCBT1h4oa69rwpXbtmlzuANQsVNsyUuzbSyzeYg3uKUMZ0B7P3e33EmT9VfLrfN4QKesKEKh04U7q72fI/M5W97fhfrzO/60YbrPWQnL4Fra5g0H/QvXLwurTVvbw+wG62/M9MZQN67iJv+YbV91mp8xPKX12xZTpf0lb3cvoAkp6fPFllArp95NUDK0eulbB2Jnf1u4vVFfzRojKUv8HBnmKbrUoEVDff3BtHWAtApy7u6gpXKqG5xZ1im7HKA1TzefmFvEuFylTu1RVWgrpHbLGn2Gat8gA1wz/ytrZyVldUXqPzz7Om2ASoxCre9ERkr46tt8wK6y9wptgEqMxOkipDwefstH2EtcJaiEodZtpiDWdChcqbAqtQ+1Or3HFQ3nAmVKD0krMq/pUHEQ+whaYuWnJWufITgM6TeEvOhAiAzpGqSCgAnSdVcIoBgEKiBUAh0QKgkGgBUEi0ACgkWgAUEi0ACokWAIVEC4BCogVAIdECoJBoAVBItAAoJFoAFBItAAqJFgCFRAuAQqIFQCHRAqCQaAFQSLQAKCRaABQSLQAKiRYAhUQLgEKiBUAh0QKgkGgBUEi0ACgkWgAUEq15B3TYcYwW17NS3DwbTuc0yosNcgHosNMan2CwZy3lJVSWACgAFS0A2gq/6C2u68pcVfiDPcebjtMeqH88hAnQrq7ke43BnicdZ2mTKv/sBgJ0hwKgHn49RZs6GnYa5vWgqY4Vr4kStK9oHHYUuZrlhuuln0Xw8yAASn2flsFP/a/5c3eWFYBtg2QCUPU7d7B33fu9l35mn6DmAqCt0CtVEvYssIbGNEBV9a7/MwcKTC996ZHPiQCoj1Z/6R1i1BxlAzrY+3KnHQCK2n2qAqA+oDsPH9+77vYX1sxRNqDDziMqHVXxe9e99NB0BECDyrmrR+GHHVUkKuo8QEPNS4/Vnk4XdJIofclxz40AKLUhNWF9p23fWVjzS1DC1sgD1PaPnqRpJZsemo7mHdDdSFXsGLUvSwCUr3n7imcAAAAwSURBVJ5uFQDQcgRAuTIj+AC0LAFQSLQAKCRaABQSLQAKiRYAhUQLgEKiBUAh0fp/7N7SWNVl80wAAAAASUVORK5CYII=" /><!-- --></p>
 <p>Now we see that while Tornado still leads the pack (being a storm
 type that tends to cause a fair number of fatalities, even though it
-causes far more injuries), we see that Hurricane jumps from 8th to a
-more plausible 4th place, Lightning and Strong Wind swapped places,
-which Lightning now being ranked higher, and Flash Flood is now ranked
-higher than Flood. All these changes make intuitive sense, which gives
-us reassurance that our weighting system was a good, if rudimentary
-idea.</p>
-<p>Thus, we can see that in the United States from 1950 to 2011, the
-weather events which most impacted human health tended were Tornadoes,
-heat waves, lightning storms (probably correlated somewhat with
-tornadoes), and Hurricanes, Strong Winds and Flash Floods. Ice Storms,
-as annoying as they might be to drivers in northern states, tend not to
-cause many fatalities, and comparatively few injuries compared to the
-higher ranked event types.</p>
+causes far more injuries), we see that Hurricane jumps from <span class="math inline">\(8th\)</span> to a more plausible <span class="math inline">\(4th\)</span> place, Lightning and Strong Wind
+swapped places, with Lightning now being ranked higher, and Flash Flood
+is now ranked higher than Flood. All these changes make intuitive sense;
+for example, naturally more people would die in an unexpected flood than
+an expected one. This gives us reassurance that our weighting system was
+a good, if rudimentary idea.</p>
+<p>In conclusion, we can see that in the United States from 1950 to
+2011, the weather events which most impacted human health were
+Tornadoes, Heat waves, Lightning storms (probably correlated somewhat
+with tornadoes), and then Hurricanes, Strong Winds and Flash Floods. Ice
+Storms, as annoying as they might be to drivers in northern states, tend
+not to cause many fatalities, as well as comparatively few injuries
+compared to the higher ranked event types.</p>
 <p>One final thing to note is that splitting up Excessive Heat from Heat
 seems to end up undercounting the effects of both events, but the NOAA
-itself explictly draws this distincton, so we maintained it in our
+itself explicitly draws this distinction, so we maintained it in our
 analysis.</p>
 <h3 align="center">
 <strong>Weather Events with Economic Consequences</strong>
@@ -457,18 +459,17 @@ PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to
 private property as well as public infrastructure and facilities;
 beginning in 1993, the NOAA began including estimates of damage to crops
 as well, hence the inclusion of the variable CROPDMG.</p>
+<p>A quick calculation shows us that there are actually <span class="math inline">\(5,857\)</span> observations spanning the full
+duration of the period in which CROPDMG was being recorded that caused
+no property damage but some crop damage, which seems to imply the value
+of this variable; it’s uncertain whether these instances would simply
+have been rolled into property damage prior to 1993, however.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>stormdata <span class="sc">%&gt;%</span> </span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(CROPDMG <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> PROPDMG <span class="sc">==</span> <span class="dv">0</span>) <span class="ot">-&gt;</span> cropsonly</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(cropsonly)</span></code></pre></div>
 <pre><code>## [1] 5857</code></pre>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(cropsonly<span class="sc">$</span>BGN_DATE)</span></code></pre></div>
 <pre><code>## [1] &quot;1993-01-19&quot; &quot;2011-11-27&quot;</code></pre>
-<p>A quick calculation shows us that there are actually 5,857
-observations spanning the full duration of the period in which CROPDMG
-was being recorded that caused no property damage but some crop damage,
-which seems to imply the value of this variable; it’s uncertain whether
-these instances would simply have been rolled into property damage prior
-to 1993.</p>
 <center>
 <strong><em>Calculating dollar values for PROPDMG and
 CROPDMG</em></strong>
@@ -476,18 +477,16 @@ CROPDMG</em></strong>
 <p>One quirk of the NOAA dataset we have is that the values for property
 and crop damage are recorded as relatively short numbers, with the unit
 of measurement of that number recorded in a seperate column called
-PROPDMGEXP and CROPDMGEXP. Thus, an event that causes 25
-<em>thousand</em> dollars worth of damage to property would have the
-same PROPDMG value (25) as an event that caused 25
-<strong><em>billion</em></strong> dollars worth of damage to property;
-however, for the first event, the PROPDMGEXP would be “K” for thousand,
-while for the second it would be “B” for billion. (The dataset also
-includes “M” for million.)</p>
+PROPDMGEXP and CROPDMGEXP. Thus, an event that causes <span class="math inline">\(25\)</span> <em>thousand</em> dollars worth of
+damage to property would have the same PROPDMG value (<span class="math inline">\(25\)</span>) as an event that caused <span class="math inline">\(25\)</span> <strong><em>billion</em></strong>
+dollars worth of damage to property. However, for the first event, the
+PROPDMGEXP would be “K” for thousand, while for the second it would be
+“B” for billion. (The dataset also includes “M” for million.)</p>
 <p>Before proceeding further in our analysis, it would help to create
 variables called <em>PROPDMG_TOTAL</em> and <em>CROPDMG_TOTAL</em> by
-actually multiplying those PROPDMG values by the appropriate number (1
-thousand, 1 million or 1 billion). We can then create a final value for
-each observation called TOTALDMG by summing PROPDMG_TOTAL and
+actually multiplying those PROPDMG values by the appropriate number
+(<span class="math inline">\(1\)</span> thousand, <span class="math inline">\(1\)</span> million or <span class="math inline">\(1\)</span> billion). We can then create a final
+value for each observation called TOTALDMG by summing PROPDMG_TOTAL and
 CROPDMG_TOTAL.</p>
 <p>We have accomplished this neatly and quickly using case_when() from
 the <strong><em>dplyr</em></strong> package, as seen below.</p>
@@ -514,13 +513,13 @@ cumulative economic consequences of particular weather events.</p>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(summed_property_events<span class="sc">$</span>EVTYPE))</span></code></pre></div>
 <pre><code>## [1] 431</code></pre>
-<p>Unfortunately, we see we have 431 event types within our newly
-grouped subset, when really we want at most 48. We follow the same
-approximate matching procedure as we did when looking at weather events
-impacting human health. Before we begin, we are going to split
-“Hurricane/Typhoon” into 3 entries in our dictionary, “Hurricane”
-“Typhoon” and “Hurricane/Typhoon”, and will re-collate these after the
-matching is done, as including only “Hurricane/Typhoon” in our
+<p>Unfortunately, we see we have <span class="math inline">\(431\)</span> event types within our newly grouped
+subset, when really we want at most <span class="math inline">\(48\)</span>. We follow the same approximate
+matching procedure as we did when looking at weather events impacting
+human health. Before we begin, we are going to split “Hurricane/Typhoon”
+into three entries in our dictionary, “Hurricane” “Typhoon” and
+“Hurricane/Typhoon”, and will re-collate these after the matching is
+done; this is done as including only “Hurricane/Typhoon” in our
 dictionary can sometimes cause events listed as “Hurricane” or “Typhoon”
 only to be matched to another category, which we don’t want.</p>
 <p>We will also re-capitalize our Event Type names again, and delete the
@@ -556,10 +555,10 @@ now unnecessary EVTYPE column.</p>
 ##  8  14610229010 Hurricane/Typhoon
 ##  9  10148404500 Flood            
 ## 10   8967041310 Ice Storm</code></pre>
-<p>Looking at our top 10 economically consequential weather events, we
-notice that we need to re-collate the data so all the various
-Hurricane/Typhoon observations get grouped back together, which we will
-re-do below.</p>
+<p>Looking at our <span class="math inline">\(10\)</span> most
+economically consequential weather events, we notice that we need to
+re-collate the data so all the various Hurricane/Typhoon observations
+get grouped back together, which we do below.</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>summed_property_events <span class="sc">%&gt;%</span>  <span class="fu">group_by</span>(EVTYPE_MATCHED) <span class="sc">%&gt;%</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise</span>(<span class="at">TotalDamage =</span> <span class="fu">sum</span>(TotalDamage)) <span class="sc">%&gt;%</span></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">arrange</span>(<span class="fu">desc</span>(TotalDamage)) <span class="ot">-&gt;</span> summed_property_events_refined</span>
@@ -593,18 +592,17 @@ using a plot!</p>
 <p>We can see clearly that the weather events that cause the most
 economic damage in the United States share some similarities with the
 weather events that cause the most impact on human health, but there is
-not a 1:1 correspondence. In particular, we see that water and wind
-related events cause by far the most economic damage in the United
-States, while heat-related events, which ranked highly in the causes of
-weather-related injuries, and even highly in the causes of
-weather-related fatalities, are fairly low in terms of economic
-consequence.</p>
+not a <span class="math inline">\(1:1\)</span> correspondence. In
+particular, we see that water and wind related events cause by far the
+most economic damage in the United States, while heat related events,
+which ranked highly in the causes of weather-related injuries and
+fatalities, rank fairly low in terms of economic consequence.</p>
 <p>It is important to note, however, that being as this data set ends in
 2011, it misses the effect of recent global-warming mediated wildfires
-that have caused so much havoc in the United States in the last 12
-years, particularly in California. It would be interesting to re-run
-this analysis using more recent data to see if Wildfires jumped up the
-rankings of economically-consequential weather events.</p>
+that have caused so much havoc in the United States in the last <span class="math inline">\(12\)</span> years, particularly in California. It
+would be interesting to re-run this analysis using more recent data to
+see if Wildfires jumped up the rankings of economically-consequential
+weather events as a result.</p>
 </div><!-- /.entry-content -->
 </article>
 </div><!-- /#main -->

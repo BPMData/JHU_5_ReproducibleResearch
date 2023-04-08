@@ -54,13 +54,13 @@ stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFac
 
 Adverse weather events are a significant cause of damage to human health as well as private and public property in the United States. This report analyzes the effects of weather events on the United States, with a focus on the health and economic consequences of adverse weather. The data used in this analysis is derived from the U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database from the years 1950 to 2011.  
 
-This report concludes that adverse weather events have significant health and economic consequences in the United States, but that the weather patterns which cause the most damage to human life are not the same as those which cause the most damage to property. In particular, Tornados, Heat and Lightning cause the most human injuries and fatalities, while water-related weather events, particularly Floods and Hurricanes/Typhoons, cause by far the most economic damage to the United States. Tornados, however, tend to cause a great deal of damage to both private property as well as human lives. 
+This report concludes that adverse weather events have significant health and economic consequences in the United States, but that the weather patterns which cause the most damage to human life are not the same as those which cause the most damage to property. In particular, Tornadoes, Heat and Lightning cause the most human injuries and fatalities, while in general, water-related weather events, particularly Floods and Hurricanes/Typhoons, cause by far the most economic damage to the United States. Tornadoes, however,despite not being dependent on water, tend to cause a great deal of damage to both private property as well as human lives. 
 
-This report concludes by noting that further study is necessary, and that in particular, expanding the analysis to the present day would offer additional insights. In particular, it is highly probable heat-related weather events have been more consequential in the last decade, with wildfires becoming more common as global climate change leads to drier weather in some states, particularly California. 
+This report concludes by noting that further study is necessary, and that it would be particularly worthwhile expanding the analysis to the present day. For example, it is highly probable heat-related weather events have been more consequential in the last decade, with wildfires becoming more common as global climate change leads to drier weather in some U.S. states, particularly California. 
 
 <h1 align="Center"> **Part 2: Data Processing and Cleaning** </h1>
 
-After loading our data, we look at some general descriptive statistics of the data set. We see it has 902,297 observations across 37 variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual data and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th, 2011.
+After loading our data, we look at some general descriptive statistics of the data set. We see it has $902,297$ observations across $37$ variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual date and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends on Nov. 30th, 2011.
 
 ```r
 stormdata$BGN_DATE <- mdy_hms(stormdata$BGN_DATE)
@@ -73,7 +73,7 @@ range(stormdata$BGN_DATE)
 ```
 ## [1] "1950-01-03" "2011-11-30"
 ```
-Out of curiosity, we decide to look up the most fatal weather incident in this dataset. A quick subsetting of the dataset by the row which has the maximum number of fatalities in the dataset tells  us that the event with the most fatalities recorded in this dataset is the 1995 Chicago heatwave, with $583$ deaths. While a tragedy, this dataset covers the year in which Hurricane Katarina happens, which should handily exceed the death toll of the 1995 Chicago Heatwave.
+Out of curiosity, we decide to look up the most fatal weather incident in this dataset. A quick subsetting of the dataset by the row which has the maximum number of fatalities tells  us that the event with the most fatalities recorded in this dataset is the 1995 Chicago heatwave, with $583$ deaths. While a tragedy, this dataset covers the year in which Hurricane Katarina happens, which should handily exceed the death toll of the 1995 Chicago Heatwave.
 
 
 ```r
@@ -159,7 +159,7 @@ human_events %>%  group_by(EVTYPE) %>%
       summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES))%>%
       arrange(desc(FATALITIES + INJURIES)) -> summed_human_events
 ```
-However, when we do this, we notice our dataset covers ***$220$*** different supposed event types. This is a lot less than the apparently ***$985$*** different type of weather events in the original data set, but according to [the NOAA itself](https://www.ncdc.noaa.gov/stormevents/details.jsp), the **Storm Events Database** should only include 48 different types of weather events! Looking at the column *EVTYPE* manually, we notice the reason there are 985 event types instead of 48 is... a massive number of typos collected over the course of over 50 years of data entry, much of which was probably done manually for decades.
+However, when we do this, we notice our dataset covers ***$220$*** different supposed event types. This is a lot less than the apparently ***$985$*** different type of weather events in the original data set, but according to [the NOAA itself](https://www.ncdc.noaa.gov/stormevents/details.jsp), the **Storm Events Database** should only include $48$ different types of weather events! Looking at the column *EVTYPE* manually, we notice the reason there are $985$ event types instead of $48$ is... a massive number of typos collected over the course of over $50$ years of data entry, much of which was probably done manually for decades.
 
 
 ```r
@@ -204,11 +204,11 @@ head(unique(stormdata$EVTYPE),40)
 ## [37] "COLD"                           "HEAVY RAIN/LIGHTNING"          
 ## [39] "FLASH FLOODING/THUNDERSTORM WI" "WALL CLOUD/FUNNEL CLOUD"
 ```
-For example, in only the 40 entries above, we see **THUNDERSTORM WINDS** written as everything from **THUNDERSTORM WINDS** to **THUNDERSTORM WINS** to **TSTM WIND**, all of which are currently considered seperate event types, even though they obviously are not.
+For example, in only the $40$ entries above, we see **THUNDERSTORM WINDS** written as everything from **THUNDERSTORM WINDS** to **THUNDERSTORM WINS** to **TSTM WIND**, all of which are currently considered separate event types, even though they obviously are not.
 
-Before we start, we're also going to correct two egregiously unusual misentered event type observations - one event type was listed as "cold" when the official weather formatting should be **"Extreme Cold/Wind Chill"**, which will cause that observation to be mismatched as "flood" simply because flood has the letters O,L and D and is a short word, and one observation is listed as the unnecessarily loquacious "unseasonably warm and dry," which we'll amend to the official event type, **"Heat"**.
+Before we start, we're also going to correct two particularly problematically misentered event type observations - one event type was listed as "cold" when the official weather formatting should be **"Extreme Cold/Wind Chill"**, which will cause that observation to be mismatched as "flood" simply because flood has the letters O,L and D and is a short word, and one observation is listed as the unnecessarily loquacious "unseasonably warm and dry," which we'll amend to the official event type, **"Heat"**.
 
-Having corrected these outliers, we'll create a vector, *dictionary*, of the NOAA's 48 official storm event types, and then use approximate string matching using the amatch() command to condense all of the 220 event types we currently have into the official 48.We are going to use the **longest common substring** method, as this will help ensure events like "Ex. Cold" get matched to the event type "Extreme Cold/Wind Chill" even though the difference in the number of characters is fairly large, rather than to something like "Funnel Cloud" or "Flood", which is closer in character count to "Ex. Cold" but don't even contain the word "cold".
+Having corrected these outliers, we'll create a vector, *dictionary*, of the NOAA's $48$ official storm event types, and then use approximate string matching using the amatch() command to condense all of the $220$ event types we currently have into the official $48$.We are going to use the **longest common substring** method, as this will help ensure events like "Ex. Cold" get matched to the event type "Extreme Cold/Wind Chill" even though the difference in the number of characters is fairly large, rather than to something like "Funnel Cloud" or "Flood", which is closer in character count to "Ex. Cold" but don't even contain the word "cold".
 
 
 ```r
@@ -230,7 +230,7 @@ length(unique(summed_human_events$EVTYPE_MATCHED))
 ```
 ## [1] 41
 ```
-You can see we're now down to just 41 event types (because 7 of the official 48 event types never actually caused any human injuries or fatalities). Now we can look at just the top 10 entries in our refined dataset *summed_human_events* to see the 10 storm types in the United States from 1950 to 2011 which caused the most human injuries and fatalities.(We'll also delete the column containing the 220 unmatched event types)
+You can see we're now down to just $41$ event types (because $7$ of the official $48$ event types never actually caused any human injuries or fatalities). Now we can look at just the top $10$ entries in our refined dataset *summed_human_events* to see the $10$ storm types in the United States from 1950 to 2011 which caused the most human injuries and fatalities.(We'll also delete the column containing the $220$ unmatched event types)
 
 
 ```r
@@ -254,7 +254,7 @@ human10
 ##  9         89     1975 ice storm        
 ## 10        133     1488 thunderstorm wind
 ```
-Before we do anything else, we're going to be petty and recapitalize our event types, as we put them all into lower case for the sake of making our approximate matching work better.
+Before we do anything else, we're going to recapitalize our event types, as we put them all into lower case for the sake of making our approximate matching work better.
 
 
 ```r
@@ -269,7 +269,7 @@ summed_human_events$EVTYPE_MATCHED <- capwords(summed_human_events$EVTYPE_MATCHE
 head(summed_human_events,10) -> human10
 ```
 
-Now we can try actually plotting the 10 events which are most destructive to human life in the United States.
+Now we can try actually plotting the $10$ events which are most destructive to human life in the United States.
 
 ```r
 ggplot(data = human10) +
@@ -283,9 +283,9 @@ ggplot(data = human10) +
 
 ![](Project2_RMD_files/figure-html/unweighted human health plot-1.png)<!-- -->
   
-We see that the event which causes the most injuries by far is Tornado (the original event type which the NOAA began tracking in 1950). Next is Excessive Heat, a perennially overlooked source of human misery, suffering and death, followed by Strong Wind, Flood, and Lightning. Of particular interest are the next three event types, Heat, Flash Flood and Hurricane, because we notice their bars are almost entirely orange; this is because the graph was "stacked" by placing Injuries on top of the Fatalities bar (which was invariably smaller for all event types in the top 10), and making the Injuries bar transparent.Thus, the red Fatalities bar underneath these event types is almost the same size as the Injuries bar. In other words, Heat, Flash Flood and Hurricane don't hurt as many people as, say, Strong Wind or Flood, but they kill far more people. 
+We see that the event which causes the most injuries by far is Tornado (the original event type which the NOAA began tracking in 1950). Next is Excessive Heat, a perennially overlooked source of human misery, suffering and death, followed by Strong Wind, Flood, and Lightning. Of particular interest are the next three event types, Heat, Flash Flood and Hurricane, because we notice their bars are almost entirely orange; this is because the graph was "stacked" by placing the Injuries bar on top of the Fatalities bar (which was invariably smaller for all event types in the top $10$), and making the Injuries bar transparent.Thus, the red Fatalities bar underneath these three event types is almost the same size as the Injuries bar. In other words, Heat, Flash Flood and Hurricane don't hurt as many people as, say, Strong Wind or Flood, but they kill far more people. 
 
-It hardly seems fair to weight Fatalities and Injuries equally, so we can call a *"Weighted Index of Human Suffering"* by assigning injuries a weight of 1 and Fatalities a higher weight. As far as I know, most of the literature on this topic presumes you know the actual nature of the injury, i.e. for the extent of calculating the actuarial payout for an insurance claim,but since the NOAA doesn't track that data, we can assign Fatality a generic weight of 10 a fatality is one order of magnitude more important than an injury.
+It hardly seems fair to weight Fatalities and Injuries equally, so we can create what we might call a *"Weighted Index of Human Suffering"* by assigning injuries a weight of $1$ and Fatalities a higher weight. As far as I know, most of the literature on the topic of determining an equivalency ratio between injury and death presumes you know the actual nature of the injury, i.e. for the sake of calculating the actuarial payout for an insurance claim,but since the NOAA doesn't track that data, we can assign Fatality a generic weight of $10$, ensuring that a fatality is considered one order of magnitude more important than an injury.
 
 Now, if we plot our data again, we see the following:
 
@@ -309,15 +309,17 @@ ggplot(data = human10_long_adj) +
 
 ![](Project2_RMD_files/figure-html/human plot fatality adjusted-1.png)<!-- -->
   
-Now we see that while Tornado still leads the pack (being a storm type that tends to cause a fair number of fatalities, even though it causes far more injuries), we see that Hurricane jumps from 8th to a more plausible 4th place, Lightning and Strong Wind swapped places, which Lightning now being ranked higher, and Flash Flood is now ranked higher than Flood. All these changes make intuitive sense, which gives us reassurance that our weighting system was a good, if rudimentary idea. 
+Now we see that while Tornado still leads the pack (being a storm type that tends to cause a fair number of fatalities, even though it causes far more injuries), we see that Hurricane jumps from $8th$ to a more plausible $4th$ place, Lightning and Strong Wind swapped places, with Lightning now being ranked higher, and Flash Flood is now ranked higher than Flood. All these changes make intuitive sense; for example, naturally more people would die in an unexpected flood than an expected one. This gives us reassurance that our weighting system was a good, if rudimentary idea. 
 
-Thus, we can see that in the United States from 1950 to 2011, the weather events which most impacted human health tended were Tornadoes, heat waves, lightning storms (probably correlated somewhat with tornadoes), and Hurricanes, Strong Winds and Flash Floods. Ice Storms, as annoying as they might be to drivers in northern states, tend not to cause many fatalities, and comparatively few injuries compared to the higher ranked event types.
+In conclusion, we can see that in the United States from 1950 to 2011, the weather events which most impacted human health were Tornadoes, Heat waves, Lightning storms (probably correlated somewhat with tornadoes), and then Hurricanes, Strong Winds and Flash Floods. Ice Storms, as annoying as they might be to drivers in northern states, tend not to cause many fatalities, as well as comparatively few injuries compared to the higher ranked event types.
 
-One final thing to note is that splitting up Excessive Heat from Heat seems to end up undercounting the effects of both events, but the NOAA itself explictly draws this distincton, so we maintained it in our analysis.
+One final thing to note is that splitting up Excessive Heat from Heat seems to end up undercounting the effects of both events, but the NOAA itself explicitly draws this distinction, so we maintained it in our analysis.
 
 <h3 align = "center">  **Weather Events with Economic Consequences** </h3>
 
-From here, we can go on to analyze weather events with economic consequences, defined as those weather events in the NOAA Storm Data set which contained an explicitly recorded value for either the variable PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to private property as well as public infrastructure and facilities; beginning in 1993, the NOAA began including estimates of damage to crops as well, hence the inclusion of the variable CROPDMG.
+From here, we can go on to analyze weather events with economic consequences, defined as those weather events in the NOAA Storm Data set which contained an explicitly recorded value for either the variable PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to private property as well as public infrastructure and facilities; beginning in 1993, the NOAA began including estimates of damage to crops as well, hence the inclusion of the variable CROPDMG.  
+
+A quick calculation shows us that there are actually $5,857$ observations spanning the full duration of the period in which CROPDMG was being recorded that caused no property damage but some crop damage, which seems to imply the value of this variable; it's uncertain whether these instances would simply have been rolled into property damage prior to 1993, however.
 
 
 ```r
@@ -337,13 +339,12 @@ range(cropsonly$BGN_DATE)
 ```
 ## [1] "1993-01-19" "2011-11-27"
 ```
-A quick calculation shows us that there are actually 5,857 observations spanning the full duration of the period in which CROPDMG was being recorded that caused no property damage but some crop damage, which seems to imply the value of this variable; it's uncertain whether these instances would simply have been rolled into property damage prior to 1993.
 
 <center>***Calculating dollar values for PROPDMG and CROPDMG***</center>
 
-One quirk of the NOAA dataset we have is that the values for property and crop damage are recorded as relatively short numbers, with the unit of measurement of that number recorded in a seperate column called PROPDMGEXP and CROPDMGEXP. Thus, an event that causes 25 *thousand* dollars worth of damage to property would have the same PROPDMG value (25) as an event that caused 25 ***billion*** dollars worth of damage to property; however, for the first event, the PROPDMGEXP would be "K" for thousand, while for the second it would be "B" for billion. (The dataset also includes "M" for million.)  
+One quirk of the NOAA dataset we have is that the values for property and crop damage are recorded as relatively short numbers, with the unit of measurement of that number recorded in a seperate column called PROPDMGEXP and CROPDMGEXP. Thus, an event that causes $25$ *thousand* dollars worth of damage to property would have the same PROPDMG value ($25$) as an event that caused $25$ ***billion*** dollars worth of damage to property. However, for the first event, the PROPDMGEXP would be "K" for thousand, while for the second it would be "B" for billion. (The dataset also includes "M" for million.)  
 
-Before proceeding further in our analysis, it would help to create variables called *PROPDMG_TOTAL* and *CROPDMG_TOTAL* by actually multiplying those PROPDMG values by the appropriate number (1 thousand, 1 million or 1 billion). We can then create a final value for each observation called TOTALDMG by summing PROPDMG_TOTAL and CROPDMG_TOTAL. 
+Before proceeding further in our analysis, it would help to create variables called *PROPDMG_TOTAL* and *CROPDMG_TOTAL* by actually multiplying those PROPDMG values by the appropriate number ($1$ thousand, $1$ million or $1$ billion). We can then create a final value for each observation called TOTALDMG by summing PROPDMG_TOTAL and CROPDMG_TOTAL. 
 
 We have accomplished this neatly and quickly using case_when() from the ***dplyr*** package, as seen below.
 
@@ -378,7 +379,7 @@ length(unique(summed_property_events$EVTYPE))
 ```
 ## [1] 431
 ```
-Unfortunately, we see we have 431 event types within our newly grouped subset, when really we want at most 48. We follow the same approximate matching procedure as we did when looking at weather events impacting human health. Before we begin, we are going to split "Hurricane/Typhoon" into 3 entries in our dictionary, "Hurricane" "Typhoon" and "Hurricane/Typhoon", and will re-collate these after the matching is done, as including only "Hurricane/Typhoon" in our dictionary can sometimes cause events listed as "Hurricane" or "Typhoon" only to be matched to another category, which we don't want.
+Unfortunately, we see we have $431$ event types within our newly grouped subset, when really we want at most $48$. We follow the same approximate matching procedure as we did when looking at weather events impacting human health. Before we begin, we are going to split "Hurricane/Typhoon" into three entries in our dictionary, "Hurricane" "Typhoon" and "Hurricane/Typhoon", and will re-collate these after the matching is done; this is done as including only "Hurricane/Typhoon" in our dictionary can sometimes cause events listed as "Hurricane" or "Typhoon" only to be matched to another category, which we don't want.
 
 We will also re-capitalize our Event Type names again, and delete the now unnecessary EVTYPE column.
 
@@ -419,7 +420,7 @@ head(summed_property_events, 10)
 ##  9  10148404500 Flood            
 ## 10   8967041310 Ice Storm
 ```
-Looking at our top 10 economically consequential weather events, we notice that we need to re-collate the data so all the various Hurricane/Typhoon observations get grouped back together, which we will re-do below.
+Looking at our  $10$ most economically consequential weather events, we notice that we need to re-collate the data so all the various Hurricane/Typhoon observations get grouped back together, which we do below.
 
 
 ```r
@@ -462,6 +463,6 @@ ggplot(data = neat10) +
 
 ![](Project2_RMD_files/figure-html/finalplot-1.png)<!-- -->
   
-We can see clearly that the weather events that cause the most economic damage in the United States share some similarities with the weather events that cause the most impact on human health, but there is not a 1:1 correspondence. In particular, we see that water and wind related events cause by far the most economic damage in the United States, while heat-related events, which ranked highly in the causes of weather-related injuries, and even highly in the causes of weather-related fatalities, are fairly low in terms of economic consequence.  
+We can see clearly that the weather events that cause the most economic damage in the United States share some similarities with the weather events that cause the most impact on human health, but there is not a $1:1$ correspondence. In particular, we see that water and wind related events cause by far the most economic damage in the United States, while heat related events, which ranked highly in the causes of weather-related injuries and fatalities, rank fairly low in terms of economic consequence.  
 
-It is important to note, however, that being as this data set ends in 2011, it misses the effect of recent global-warming mediated wildfires that have caused so much havoc in the United States in the last 12 years, particularly in California. It would be interesting to re-run this analysis using more recent data to see if Wildfires jumped up the rankings of economically-consequential weather events.
+It is important to note, however, that being as this data set ends in 2011, it misses the effect of recent global-warming mediated wildfires that have caused so much havoc in the United States in the last $12$ years, particularly in California. It would be interesting to re-run this analysis using more recent data to see if Wildfires jumped up the rankings of economically-consequential weather events as a result.
