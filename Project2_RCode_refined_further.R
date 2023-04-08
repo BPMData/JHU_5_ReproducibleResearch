@@ -74,7 +74,9 @@ ggplot(data = human10) +
       geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, FATALITIES + INJURIES, .desc = TRUE), y = INJURIES, fill = "Injuries", alpha = 0.5)) +
       scale_fill_manual(values = c("Fatalities" = "red", "Injuries" = "yellow")) +
       theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))+
-      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10)))
+      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10)))+
+      labs(x = "Event Type", y = "Weighted Human Suffering Index", title = "10 U.S. Weather Events Which Most Affect \nHuman Health")+
+      theme(legend.position = "none")
 
 # Versus Bing's way
 
@@ -82,15 +84,53 @@ human10_long <- human10 %>%
       pivot_longer (cols = c(INJURIES, FATALITIES), names_to = "type", values_to = "value")
 
 ggplot (data = human10_long) +
-      geom_col (mapping = aes (x = EVTYPE_MATCHED, y = value, fill = type), stat = "identity") +
+      geom_col (mapping = aes (x = fct_reorder(EVTYPE_MATCHED, value, .desc = TRUE), y = value, fill = type), stat = "identity") +
       theme (plot.title = element_text (hjust = 0.5), plot.caption = element_text (hjust = 0.5))+
       theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10)))
 
-ggplot (data = human10_long) +
-      geom_col (mapping = aes (x = EVTYPE_MATCHED, y = value, fill = type), stat = "identity") +
-      theme (plot.title = element_text (hjust = 0.5), plot.caption = element_text (hjust = 0.5))+
-      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10)))
+events <- summed_human_events$EVTYPE_MATCHED
 
+capwords <- function(s, strict = FALSE) {
+      cap <- function(s) paste(toupper(substring(s, 1, 1)),
+                               {s <- substring(s, 2); if(strict) tolower(s) else s},
+                               sep = "", collapse = " " )
+      sapply(strsplit(s, split = " "), cap, USE.NAMES = !is.null(names(s)))
+}
+
+summed_human_events$EVTYPE_MATCHED <- capwords(summed_human_events$EVTYPE_MATCHED)
+
+summed_human_events$EVTYPE_MATCHED
 # Maybe we should adjust for Fatalities mattering more than injuries.
 
+human10_adj <- human10
+
+human10_adj$FATALITIES <- human10$FATALITIES*10
+
+
+human10_long_adj <- human10_adj %>%
+      pivot_longer (cols = c(INJURIES, FATALITIES), names_to = "type", values_to = "value")
+
+ggplot(data = human10_long_adj) +
+      geom_col (mapping = aes (x = fct_reorder(EVTYPE_MATCHED, value, .desc = TRUE), y = value, fill = type)) +
+      theme(plot.title = element_text (hjust = 0.5), plot.caption = element_text (hjust = 0.5))+
+      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) +
+      labs(x = "Event Type", y = "Weighted Human Suffering Index", title = "10 U.S. Weather Events Which Most Affect \nHuman Health")
+
+
+
+property_events$PROPDMG_TOTAL <- case_when (
+      property_events$PROPDMGEXP == "K" ~ property_events$PROPDMG * 10^3,
+      property_events$PROPDMGEXP == "M" ~ property_events$PROPDMG * 10^6,
+      property_events$PROPDMGEXP == "B" ~ property_events$PROPDMG * 10^9,
+      TRUE ~ 0
+)
+
+property_events$CROPDMG_TOTAL <- case_when (
+      property_events$CROPDMGEXP == "K" ~ property_events$CROPDMG * 10^3,
+      property_events$CROPDMGEXP == "M" ~ property_events$CROPDMG * 10^6,
+      property_events$CROPDMGEXP == "B" ~ property_events$CROPDMG * 10^9,
+      TRUE ~ 0
+)
+
+property_events$TOTALDMG <- (property_events$PROPDMG_TOTAL + property_events$CROPDMG_TOTAL)
 

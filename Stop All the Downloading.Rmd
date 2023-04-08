@@ -1,0 +1,30 @@
+---
+title: "Downloading"
+author: "Bryan Murphy"
+date: "2023-04-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+> I'm a computer
+
+      Stop all the downloading.
+      
+
+Here's the code to download the dataset - I'm taking it out of my RMD until I'm ready to publish because the cache isn't working and it keeps downloading over and over. 
+
+```
+#Here we download our dataset, if it's not already downloaded, and read it as a tibble into RStudio.
+
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
+
+if(!file.exists("./Proj2data/Stormdata.csv.bs2")) {download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl")} # Actually download the file.
+
+gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
+       skip = TRUE, ext = "bz2")
+
+```
+
+Okay.
