@@ -9,7 +9,7 @@ output:
     keep_md: true
 ---
 
-```{r libraries, include=FALSE}
+```{r libraries, echo=TRUE, message=FALSE, result="hide"}
 library(tidyverse)
 library(R.utils)
 library(lubridate)
@@ -28,10 +28,16 @@ options(cache = TRUE)
 ```
 
 ```{r load_data, cache = TRUE}
+#Here we download our dataset, if it's not already downloaded, and read it as a tibble into RStudio.
 
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2" # Set the DL link url.
+
+if(!file.exists("./Proj2data/Stormdata.csv.bs2")) {download.file(fileUrl,destfile="./Proj2data/StormData.csv.bz2",method="curl")} # Actually download the file.
+
+gunzip(filename = "./Proj2data/StormData.csv.bz2", destname = "./Proj2data/StormData.csv",
+       skip = TRUE, ext = "bz2")
 
 stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
-
 ```
 <h1 align="Center"> **Part 1: Synopsis** </h1>
 
@@ -91,7 +97,9 @@ crops <- filter(property_events, CROPDMG > 0)
 
 range(crops$BGN_DATE)
 ```
-<h2 align = "center"> **Part 3: Weather Events Impacting Human Health** </h2>
+<h1 align = "center"> **Results** </h1>
+
+<h3 align = "center">**Weather Events Impacting Human Health** </h3>
 
 We'll start by focusing on weather events in the United States from 1950 until 2011 that had a direct impact on human health - in other words, the data contained within our subset *human_events*. 
 
@@ -195,7 +203,7 @@ Thus, we can see that in the United States from 1950 to 2011, the weather events
 
 One final thing to note is that splitting up Excessive Heat from Heat seems to end up undercounting the effects of both events, but the NOAA itself explictly draws this distincton, so we maintained it in our analysis.
 
-<h3 align = "center"> **Part 4: Weather Events with Economic Consequences** </h2>
+<h3 align = "center">  **Weather Events with Economic Consequences** </h3>
 
 From here, we can go on to analyze weather events with economic consequences, defined as those weather events in the NOAA Storm Data set which contained an explicitly recorded value for either the variable PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to private property as well as public infrastructure and facilities; beginning in 1993, the NOAA began including estimates of damage to crops as well, hence the inclusion of the variable CROPDMG.
 
