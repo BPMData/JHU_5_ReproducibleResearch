@@ -134,3 +134,110 @@ property_events$CROPDMG_TOTAL <- case_when (
 
 property_events$TOTALDMG <- (property_events$PROPDMG_TOTAL + property_events$CROPDMG_TOTAL)
 
+# We split "Hurricane/Typhoon" into 3 entries in our dictionary, "Hurricane" "Typhoon" and "Hurricane/Typhoon", and will re-collate these after the matching is done.
+
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+dictionary <- tolower(dictionary)
+summed_property_events$EVTYPE <- tolower(summed_property_events$EVTYPE)
+summed_property_events$EVTYPE_MATCHED <- dictionary[amatch(summed_property_events$EVTYPE,dictionary,method="lcs", maxDist=60)]
+
+
+# What if we didn't do that?
+
+dictionary2 <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+dictionary2 <- tolower(dictionary2)
+summed_property_events$EVTYPE <- tolower(summed_property_events$EVTYPE)
+summed_property_events$EVTYPE_MATCHED2 <- dictionary2[amatch(summed_property_events$EVTYPE,dictionary2,method="lcs", maxDist=60)]
+
+# Yeah no let's keep it.
+
+summed_property_events$EVTYPE_MATCHED2 <- NULL
+
+summedptest <- summed_property_events
+
+summedptest[summedptest$EVTYPE_MATCHED == "hurricane",] <- summedptest$EVTYPE_MATCHED
+
+summed_property_events$EVTYPE_MATCHED %>%
+      mutate(EVTYPE_MATCHED =case_when(
+            EVTYPE_MATCHED == "hurricane" ~ "Hurricane/Typhoon",
+            TRUE ~ EVTYPE_MATCHED
+      ))
+
+summed_property_events$EVTYPE_MATCHED %>%
+      mutate(EVTYPE_MATCHED = ifelse(EVTYPE_MATCHED ==  "hurricane", "Hurricane/Typhoons",
+                                     EVTYPE_MATCHED))
+
+#ChatGPT response:
+
+summed_property_events$EVTYPE_MATCHED <-
+      summed_property_events$EVTYPE_MATCHED %>%
+      case_when(
+            .== "hurricane" ~ "Hurricane/Typhoon",
+            TRUE ~ .
+      )
+
+typeof(summed_property_events)
+
+is.data.frame(summed_property_events)
+is_tibble(summed_property_events)
+
+summed_property_events$EVTYPE_MATCHED <- case_when(
+      summed_property_events$EVTYPE_MATCHED == "hurricane" ~ "Hurricane/Typhoon",
+      summed_property_events$EVTYPE_MATCHED == "hurricane/typhoon" ~ "Hurricane/Typhoon",
+      summed_property_events$EVTYPE_MATCHED == "typhoon" ~ "Hurricane/Typhoon",
+      TRUE ~ summed_property_events$EVTYPE_MATCHED
+      )
+
+summed_property_events
+
+summed_property_events$EVTYPE_MATCHED <- capwords(summed_property_events$EVTYPE_MATCHED)
+
+summed_property_events %>%  group_by(EVTYPE_MATCHED) %>%
+      summarise(TotalDamage = sum(TotalDamage)) %>%
+      arrange(desc(TotalDamage)) -> summed_property_events_refined
+
+head(summed_property_events_refined,10)
+
+neat10 <- summed_property_events_refined[1:10,]
+neat10
+
+library(RColorBrewer)
+
+ggplot(data = neat10) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, TotalDamage, .desc = TRUE), y = TotalDamage, fill = EVTYPE_MATCHED)) +
+      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) +
+      theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))
+
+scale_co
+
+ggplot(data = penguins, mapping = aes(x=flipper_length_mm, y=body_mass_g)) +
+      geom_point(aes(color = species)) +
+      scale_color_manual(values = c("plum", "salmon", "navajowhite2")) +
+      facet_wrap(~species) + scale_color_brewer(direction = -1, palette = "Blues")
+YlOrRd
+
+cols <- brewer_pal(type = "seq",palette = "YlOrRD")
+
+cols <- brewer_pal("seq",)(5)
+
+show_col(gradient_n_pal(cols)(seq(0,1, length.out = 30)))
+
+brewer_pal(type = "seq")(10)
+
+show_col("YlOrRd")
+gradient_n_pal("YlOrRd")
+
+show_col(gradient_n_pal(c("yellow","orange","red"))(seq(0,1, length.out = 10)))
+
+gradient_n_pal(c("yellow","orange","red"))(seq(0,1, length.out = 10))
+
+
+ggplot(data = neat10) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, TotalDamage, .desc = TRUE), y = TotalDamage/1000000000, fill = TotalDamage)) +
+      theme(axis.text.x = element_text(angle = 45, size = 6, margin = margin(10))) +
+      theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))+
+      scale_fill_gradient(low = "sienna", high = "red2")+
+      theme(legend.position = "none")+
+      labs(title = "The Most Economically Consequential Weather Events,\n Ordered", y = "Cumulative Damage in Billions of Dollars,\n from 1950 to 2011",
+           x = "Type of Weather Event")
+

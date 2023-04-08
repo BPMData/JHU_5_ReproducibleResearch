@@ -175,14 +175,32 @@ Property, 1950 - 2011</h1>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># And then we&#39;ll use a seperate code chunk to load our data.</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>stormdata <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;./Proj2data/StormData.csv&quot;</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>, <span class="at">strip.white =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
 <h1 align="Center">
-<strong>Part 0: Synopsis</strong>
+<strong>Part 1: Synopsis</strong>
 </h1>
-<blockquote>
-<p>Some text will go here<br />
-One day</p>
-</blockquote>
+<p>Adverse weather events are a significant cause of damage to human
+health as well as private and public property in the United States. This
+report analyzes the effects of weather events on the United States, with
+a focus on the health and economic consequences of adverse weather. The
+data used in this analysis is derived from the U.S. National Oceanic and
+Atmospheric Administration’s (NOAA) storm database from the years 1950
+to 2011.</p>
+<p>This report concludes that adverse weather events have significant
+health and economic consequences in the United States, but that the
+weather patterns which cause the most damage to human life are not the
+same as those which cause the most damage to property. In particular,
+Tornados, Heat and Lightning cause the most human injuries and
+fatalities, while water-related weather events, particularly Floods and
+Hurricanes/Typhoons, cause by far the most economic damage to the United
+States. Tornados, however, tend to cause a great deal of damage to both
+private property as well as human lives.</p>
+<p>This report concludes by noting that further study is necessary, and
+that in particular, expanding the analysis to the present day would
+offer additional insights. In particular, it is highly probable
+heat-related weather events have been more consequential in the last
+decade, with wildfires becoming more common as global climate change
+leads to drier weather in some states, particularly California.</p>
 <h1 align="Center">
-<strong>Part 1: Data Processing and Cleaning</strong>
+<strong>Part 2: Data Processing and Cleaning</strong>
 </h1>
 <p>After loading our data, we look at some general descriptive
 statistics of the data set. We see it has 902,297 observations across 37
@@ -263,7 +281,7 @@ to property (including crop damage from 1993 onward).</p>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(crops<span class="sc">$</span>BGN_DATE)</span></code></pre></div>
 <pre><code>## [1] &quot;1993-01-04&quot; &quot;2011-11-28&quot;</code></pre>
 <h2 align="center">
-Weather Events Impacting Human Health
+<strong>Part 3: Weather Events Impacting Human Health</strong>
 </h2>
 <p>We’ll start by focusing on weather events in the United States from
 1950 until 2011 that had a direct impact on human health - in other
@@ -451,7 +469,7 @@ seems to end up undercounting the effects of both events, but the NOAA
 itself explictly draws this distincton, so we maintained it in our
 analysis.</p>
 <h3 align="center">
-Weather Events with Economic Consequences
+<strong>Part 4: Weather Events with Economic Consequences</strong>
 </h2>
 <p>From here, we can go on to analyze weather events with economic
 consequences, defined as those weather events in the NOAA Storm Data set
@@ -460,12 +478,154 @@ PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to
 private property as well as public infrastructure and facilities;
 beginning in 1993, the NOAA began including estimates of damage to crops
 as well, hence the inclusion of the variable CROPDMG.</p>
-<p>Testing <code>4+4</code> oka what A quick calculation shows us that
-there are actually
-<code>stormdata %&gt;% filter(CROPDMG &gt; 0 &amp; PROPDMG == 0) %&gt;% nrow()</code>
-testing testsers</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">+</span><span class="dv">2</span></span></code></pre></div>
-<pre><code>## [1] 4</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>stormdata <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(CROPDMG <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> PROPDMG <span class="sc">==</span> <span class="dv">0</span>) <span class="ot">-&gt;</span> cropsonly</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(cropsonly)</span></code></pre></div>
+<pre><code>## [1] 5857</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(cropsonly<span class="sc">$</span>BGN_DATE)</span></code></pre></div>
+<pre><code>## [1] &quot;1993-01-19&quot; &quot;2011-11-27&quot;</code></pre>
+<p>A quick calculation shows us that there are actually 5,857
+observations spanning the full duration of the period in which CROPDMG
+was being recorded that caused no property damage but some crop damage,
+which seems to imply the value of this variable; it’s uncertain whether
+these instances would simply have been rolled into property damage prior
+to 1993.</p>
+<center>
+<strong><em>Calculating dollar values for PROPDMG and
+CROPDMG</em></strong>
+</center>
+<p>One quirk of the NOAA dataset we have is that the values for property
+and crop damage are recorded as relatively short numbers, with the unit
+of measurement of that number recorded in a seperate column called
+PROPDMGEXP and CROPDMGEXP. Thus, an event that causes 25
+<em>thousand</em> dollars worth of damage to property would have the
+same PROPDMG value (25) as an event that caused 25
+<strong><em>billion</em></strong> dollars worth of damage to property;
+however, for the first event, the PROPDMGEXP would be “K” for thousand,
+while for the second it would be “B” for billion. (The dataset also
+includes “M” for million.)</p>
+<p>Before proceeding further in our analysis, it would help to create
+variables called <em>PROPDMG_TOTAL</em> and <em>CROPDMG_TOTAL</em> by
+actually multiplying those PROPDMG values by the appropriate number (1
+thousand, 1 million or 1 billion). We can then create a final value for
+each observation called TOTALDMG by summing PROPDMG_TOTAL and
+CROPDMG_TOTAL.</p>
+<p>We have accomplished this neatly and quickly using case_when() from
+the <strong><em>dplyr</em></strong> package, as seen below.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>property_events<span class="sc">$</span>PROPDMG_TOTAL <span class="ot">&lt;-</span> <span class="fu">case_when</span> (</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>PROPDMGEXP <span class="sc">==</span> <span class="st">&quot;K&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>PROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>PROPDMGEXP <span class="sc">==</span> <span class="st">&quot;M&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>PROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>PROPDMGEXP <span class="sc">==</span> <span class="st">&quot;B&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>PROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">9</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>property_events<span class="sc">$</span>CROPDMG_TOTAL <span class="ot">&lt;-</span> <span class="fu">case_when</span> (</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>CROPDMGEXP <span class="sc">==</span> <span class="st">&quot;K&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>CROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>CROPDMGEXP <span class="sc">==</span> <span class="st">&quot;M&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>CROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>      property_events<span class="sc">$</span>CROPDMGEXP <span class="sc">==</span> <span class="st">&quot;B&quot;</span> <span class="sc">~</span> property_events<span class="sc">$</span>CROPDMG <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">9</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>property_events<span class="sc">$</span>TOTALDMG <span class="ot">&lt;-</span> (property_events<span class="sc">$</span>PROPDMG_TOTAL <span class="sc">+</span> property_events<span class="sc">$</span>CROPDMG_TOTAL)</span></code></pre></div>
+<p>This accomplished, we now group by EVTYPE again so we can see the
+cumulative economic consequences of particular weather events.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>property_events <span class="sc">%&gt;%</span>  <span class="fu">group_by</span>(EVTYPE) <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise</span>(<span class="at">TotalDamage =</span> <span class="fu">sum</span>(TOTALDMG)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">arrange</span>(<span class="fu">desc</span>(TotalDamage)) <span class="ot">-&gt;</span> summed_property_events</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(summed_property_events<span class="sc">$</span>EVTYPE))</span></code></pre></div>
+<pre><code>## [1] 431</code></pre>
+<p>Unfortunately, we see we have 431 event types within our newly
+grouped subset, when really we want at most 48. We follow the same
+approximate matching procedure as we did when looking at weather events
+impacting human health. Before we begin, we are going to split
+“Hurricane/Typhoon” into 3 entries in our dictionary, “Hurricane”
+“Typhoon” and “Hurricane/Typhoon”, and will re-collate these after the
+matching is done, as including only “Hurricane/Typhoon” in our
+dictionary can sometimes cause events listed as “Hurricane” or “Typhoon”
+only to be matched to another category, which we don’t want.</p>
+<p>We will also re-capitalize our Event Type names again, and delete the
+now unnecessary EVTYPE column.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Astronomical Low Tide&quot;</span>,<span class="st">&quot;Avalanche&quot;</span>,<span class="st">&quot;Blizzard&quot;</span>,<span class="st">&quot;Coastal Flood&quot;</span>,<span class="st">&quot;Cold/Wind Chill&quot;</span>,<span class="st">&quot;Debris Flow&quot;</span>,<span class="st">&quot;Dense Fog&quot;</span>,<span class="st">&quot;Dense Smoke&quot;</span>,<span class="st">&quot;Drought&quot;</span>,<span class="st">&quot;Dust Devil&quot;</span>,<span class="st">&quot;Dust Storm&quot;</span>,<span class="st">&quot;Excessive Heat&quot;</span>,<span class="st">&quot;Extreme Cold/Wind Chill&quot;</span>,<span class="st">&quot;Flash Flood&quot;</span>,<span class="st">&quot;Flood&quot;</span>,<span class="st">&quot;Freezing Fog&quot;</span>,<span class="st">&quot;Frost/Freeze&quot;</span>,<span class="st">&quot;Funnel Cloud&quot;</span>,<span class="st">&quot;Hail&quot;</span>,<span class="st">&quot;Heat&quot;</span>,<span class="st">&quot;Heavy Rain&quot;</span>,<span class="st">&quot;Heavy Snow&quot;</span>,<span class="st">&quot;High Surf&quot;</span>,<span class="st">&quot;High Wind&quot;</span>,<span class="st">&quot;Hurricane&quot;</span>,<span class="st">&quot;Typhoon&quot;</span>,<span class="st">&quot;Hurricane/Typhoon&quot;</span>,<span class="st">&quot;Ice Storm&quot;</span>,<span class="st">&quot;Lakeshore Flood&quot;</span>,<span class="st">&quot;Lake-Effect Snow&quot;</span>,<span class="st">&quot;Lightning&quot;</span>,<span class="st">&quot;Marine Hail&quot;</span>,<span class="st">&quot;Marine High Wind&quot;</span>,<span class="st">&quot;Marine Strong Wind&quot;</span>,<span class="st">&quot;Marine Thunderstorm Wind&quot;</span>,<span class="st">&quot;Rip Current&quot;</span>,<span class="st">&quot;Sleet&quot;</span>,<span class="st">&quot;Storm Tide&quot;</span>,<span class="st">&quot;Strong Wind&quot;</span>,<span class="st">&quot;Thunderstorm Wind&quot;</span>,<span class="st">&quot;Tornado&quot;</span>,<span class="st">&quot;Tropical Depression&quot;</span>,<span class="st">&quot;Tropical Storm&quot;</span>,<span class="st">&quot;Tsunami&quot;</span>,<span class="st">&quot;Volcanic Ash&quot;</span>,<span class="st">&quot;Waterspout&quot;</span>,<span class="st">&quot;Wildfire&quot;</span>,<span class="st">&quot;Winter Storm&quot;</span>,<span class="st">&quot;Winter Weather&quot;</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> <span class="fu">tolower</span>(dictionary)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>summed_property_events<span class="sc">$</span>EVTYPE <span class="ot">&lt;-</span> <span class="fu">tolower</span>(summed_property_events<span class="sc">$</span>EVTYPE)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="ot">&lt;-</span> dictionary[<span class="fu">amatch</span>(summed_property_events<span class="sc">$</span>EVTYPE,dictionary,<span class="at">method=</span><span class="st">&quot;lcs&quot;</span>, <span class="at">maxDist=</span><span class="dv">60</span>)]</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>      summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="sc">==</span> <span class="st">&quot;hurricane&quot;</span> <span class="sc">~</span> <span class="st">&quot;Hurricane/Typhoon&quot;</span>,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>      summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="sc">==</span> <span class="st">&quot;hurricane/typhoon&quot;</span> <span class="sc">~</span> <span class="st">&quot;Hurricane/Typhoon&quot;</span>,</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>      summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="sc">==</span> <span class="st">&quot;typhoon&quot;</span> <span class="sc">~</span> <span class="st">&quot;Hurricane/Typhoon&quot;</span>,</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> summed_property_events<span class="sc">$</span>EVTYPE_MATCHED</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>summed_property_events<span class="sc">$</span>EVTYPE_MATCHED <span class="ot">&lt;-</span> <span class="fu">capwords</span>(summed_property_events<span class="sc">$</span>EVTYPE_MATCHED)</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>summed_property_events<span class="sc">$</span>EVTYPE <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(summed_property_events, <span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 2
+##     TotalDamage EVTYPE_MATCHED   
+##           &lt;dbl&gt; &lt;chr&gt;            
+##  1 150319678250 Flood            
+##  2  71913712800 Hurricane/Typhoon
+##  3  57340613590 Tornado          
+##  4  43323541000 Storm Tide       
+##  5  18752904170 Hail             
+##  6  17562128610 Flash Flood      
+##  7  15018672000 Drought          
+##  8  14610229010 Hurricane/Typhoon
+##  9  10148404500 Flood            
+## 10   8967041310 Ice Storm</code></pre>
+<p>Looking at our top 10 economically consequential weather events, we
+notice that we need to re-collate the data so all the various
+Hurricane/Typhoon observations get grouped back together, which we will
+re-do below.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>summed_property_events <span class="sc">%&gt;%</span>  <span class="fu">group_by</span>(EVTYPE_MATCHED) <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise</span>(<span class="at">TotalDamage =</span> <span class="fu">sum</span>(TotalDamage)) <span class="sc">%&gt;%</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">arrange</span>(<span class="fu">desc</span>(TotalDamage)) <span class="ot">-&gt;</span> summed_property_events_refined</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(summed_property_events_refined,<span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 2
+##    EVTYPE_MATCHED     TotalDamage
+##    &lt;chr&gt;                    &lt;dbl&gt;
+##  1 Flood             161071361250
+##  2 Hurricane/Typhoon  90732527810
+##  3 Tornado            57345502190
+##  4 Storm Tide         47965589000
+##  5 Hail               19145902670
+##  6 Flash Flood        18439139760
+##  7 Drought            15091766600
+##  8 Ice Storm           8968208310
+##  9 Wildfire            8895482130
+## 10 Thunderstorm Wind   8685898490</code></pre>
+<p>Finally, our data looks like it’s in a format where we can analyze it
+using a plot!</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>neat10 <span class="ot">&lt;-</span> summed_property_events_refined[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,]</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> neat10) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_col</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(EVTYPE_MATCHED, TotalDamage, <span class="at">.desc =</span> <span class="cn">TRUE</span>), <span class="at">y =</span> TotalDamage<span class="sc">/</span><span class="dv">1000000000</span>, <span class="at">fill =</span> TotalDamage)) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">size =</span> <span class="dv">8</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">12</span>))) <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>), <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))<span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">&quot;sienna&quot;</span>, <span class="at">high =</span> <span class="st">&quot;red2&quot;</span>)<span class="sc">+</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)<span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;The Most Economically Consequential Weather Events,</span><span class="sc">\n</span><span class="st"> Ordered&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Cumulative Damage in Billions of Dollars,</span><span class="sc">\n</span><span class="st"> from 1950 to 2011&quot;</span>,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">&quot;Type of Weather Event&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>We can see clearly that the weather events that cause the most
+economic damage in the United States share some similarities with the
+weather events that cause the most impact on human health, but there is
+not a 1:1 correspondence. In particular, we see that water and wind
+related events cause by far the most economic damage in the United
+States, while heat-related events, which ranked highly in the causes of
+weather-related injuries, and even highly in the causes of
+weather-related fatalities, are fairly low in terms of economic
+consequence.</p>
+<p>It is important to note, however, that being as this data set ends in
+2011, it misses the effect of recent global-warming mediated wildfires
+that have caused so much havoc in the United States in the last 12
+years, particularly in California. It would be interesting to re-run
+this analysis using more recent data to see if Wildfires jumped up the
+rankings of economically-consequential weather events.</p>
 </div><!-- /.entry-content -->
 </article>
 </div><!-- /#main -->

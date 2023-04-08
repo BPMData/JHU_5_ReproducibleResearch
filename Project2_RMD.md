@@ -26,12 +26,15 @@ options(cache = TRUE)
 ```r
 stormdata <- as_tibble(read.csv(file = "./Proj2data/StormData.csv", stringsAsFactors = FALSE, strip.white = TRUE))
 ```
-<h1 align="Center"> **Part 0: Synopsis** </h1>
+<h1 align="Center"> **Part 1: Synopsis** </h1>
 
-> Some text will go here  
-> One day
+Adverse weather events are a significant cause of damage to human health as well as private and public property in the United States. This report analyzes the effects of weather events on the United States, with a focus on the health and economic consequences of adverse weather. The data used in this analysis is derived from the U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database from the years 1950 to 2011.  
 
-<h1 align="Center"> **Part 1: Data Processing and Cleaning** </h1>
+This report concludes that adverse weather events have significant health and economic consequences in the United States, but that the weather patterns which cause the most damage to human life are not the same as those which cause the most damage to property. In particular, Tornados, Heat and Lightning cause the most human injuries and fatalities, while water-related weather events, particularly Floods and Hurricanes/Typhoons, cause by far the most economic damage to the United States. Tornados, however, tend to cause a great deal of damage to both private property as well as human lives. 
+
+This report concludes by noting that further study is necessary, and that in particular, expanding the analysis to the present day would offer additional insights. In particular, it is highly probable heat-related weather events have been more consequential in the last decade, with wildfires becoming more common as global climate change leads to drier weather in some states, particularly California. 
+
+<h1 align="Center"> **Part 2: Data Processing and Cleaning** </h1>
 
 After loading our data, we look at some general descriptive statistics of the data set. We see it has 902,297 observations across 37 variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual data and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th, 2011.
 
@@ -119,7 +122,7 @@ range(crops$BGN_DATE)
 ```
 ## [1] "1993-01-04" "2011-11-28"
 ```
-<h2 align = "center"> Weather Events Impacting Human Health </h2>
+<h2 align = "center"> **Part 3: Weather Events Impacting Human Health** </h2>
 
 We'll start by focusing on weather events in the United States from 1950 until 2011 that had a direct impact on human health - in other words, the data contained within our subset *human_events*. 
 
@@ -286,18 +289,153 @@ Thus, we can see that in the United States from 1950 to 2011, the weather events
 
 One final thing to note is that splitting up Excessive Heat from Heat seems to end up undercounting the effects of both events, but the NOAA itself explictly draws this distincton, so we maintained it in our analysis.
 
-<h3 align = "center"> Weather Events with Economic Consequences </h2>
+<h3 align = "center"> **Part 4: Weather Events with Economic Consequences** </h2>
 
 From here, we can go on to analyze weather events with economic consequences, defined as those weather events in the NOAA Storm Data set which contained an explicitly recorded value for either the variable PROPDMG or CROPDMG. PROPDMG is typically defined as damage inflicted to private property as well as public infrastructure and facilities; beginning in 1993, the NOAA began including estimates of damage to crops as well, hence the inclusion of the variable CROPDMG.
 
-Testing `4+4` oka what
-A quick calculation shows us that there are actually `stormdata %>% filter(CROPDMG > 0 & PROPDMG == 0) %>% nrow()` testing testsers
 
 ```r
-2+2
+stormdata %>% 
+      filter(CROPDMG > 0 & PROPDMG == 0) -> cropsonly
+nrow(cropsonly)
 ```
 
 ```
-## [1] 4
+## [1] 5857
 ```
 
+```r
+range(cropsonly$BGN_DATE)
+```
+
+```
+## [1] "1993-01-19" "2011-11-27"
+```
+A quick calculation shows us that there are actually 5,857 observations spanning the full duration of the period in which CROPDMG was being recorded that caused no property damage but some crop damage, which seems to imply the value of this variable; it's uncertain whether these instances would simply have been rolled into property damage prior to 1993.
+
+<center>***Calculating dollar values for PROPDMG and CROPDMG***</center>
+
+One quirk of the NOAA dataset we have is that the values for property and crop damage are recorded as relatively short numbers, with the unit of measurement of that number recorded in a seperate column called PROPDMGEXP and CROPDMGEXP. Thus, an event that causes 25 *thousand* dollars worth of damage to property would have the same PROPDMG value (25) as an event that caused 25 ***billion*** dollars worth of damage to property; however, for the first event, the PROPDMGEXP would be "K" for thousand, while for the second it would be "B" for billion. (The dataset also includes "M" for million.)  
+
+Before proceeding further in our analysis, it would help to create variables called *PROPDMG_TOTAL* and *CROPDMG_TOTAL* by actually multiplying those PROPDMG values by the appropriate number (1 thousand, 1 million or 1 billion). We can then create a final value for each observation called TOTALDMG by summing PROPDMG_TOTAL and CROPDMG_TOTAL. 
+
+We have accomplished this neatly and quickly using case_when() from the ***dplyr*** package, as seen below.
+
+```r
+property_events$PROPDMG_TOTAL <- case_when (
+      property_events$PROPDMGEXP == "K" ~ property_events$PROPDMG * 10^3,
+      property_events$PROPDMGEXP == "M" ~ property_events$PROPDMG * 10^6,
+      property_events$PROPDMGEXP == "B" ~ property_events$PROPDMG * 10^9,
+      TRUE ~ 0
+)
+
+property_events$CROPDMG_TOTAL <- case_when (
+      property_events$CROPDMGEXP == "K" ~ property_events$CROPDMG * 10^3,
+      property_events$CROPDMGEXP == "M" ~ property_events$CROPDMG * 10^6,
+      property_events$CROPDMGEXP == "B" ~ property_events$CROPDMG * 10^9,
+      TRUE ~ 0
+)
+
+property_events$TOTALDMG <- (property_events$PROPDMG_TOTAL + property_events$CROPDMG_TOTAL)
+```
+This accomplished, we now group by EVTYPE again so we can see the cumulative economic consequences of particular weather events.
+
+
+```r
+property_events %>%  group_by(EVTYPE) %>%
+      summarise(TotalDamage = sum(TOTALDMG)) %>%
+      arrange(desc(TotalDamage)) -> summed_property_events
+
+length(unique(summed_property_events$EVTYPE))
+```
+
+```
+## [1] 431
+```
+Unfortunately, we see we have 431 event types within our newly grouped subset, when really we want at most 48. We follow the same approximate matching procedure as we did when looking at weather events impacting human health. Before we begin, we are going to split "Hurricane/Typhoon" into 3 entries in our dictionary, "Hurricane" "Typhoon" and "Hurricane/Typhoon", and will re-collate these after the matching is done, as including only "Hurricane/Typhoon" in our dictionary can sometimes cause events listed as "Hurricane" or "Typhoon" only to be matched to another category, which we don't want.
+
+We will also re-capitalize our Event Type names again, and delete the now unnecessary EVTYPE column.
+
+
+```r
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+
+dictionary <- tolower(dictionary)
+summed_property_events$EVTYPE <- tolower(summed_property_events$EVTYPE)
+summed_property_events$EVTYPE_MATCHED <- dictionary[amatch(summed_property_events$EVTYPE,dictionary,method="lcs", maxDist=60)]
+
+summed_property_events$EVTYPE_MATCHED <- case_when(
+      summed_property_events$EVTYPE_MATCHED == "hurricane" ~ "Hurricane/Typhoon",
+      summed_property_events$EVTYPE_MATCHED == "hurricane/typhoon" ~ "Hurricane/Typhoon",
+      summed_property_events$EVTYPE_MATCHED == "typhoon" ~ "Hurricane/Typhoon",
+      TRUE ~ summed_property_events$EVTYPE_MATCHED
+      )
+
+summed_property_events$EVTYPE_MATCHED <- capwords(summed_property_events$EVTYPE_MATCHED)
+
+summed_property_events$EVTYPE <- NULL
+
+head(summed_property_events, 10)
+```
+
+```
+## # A tibble: 10 × 2
+##     TotalDamage EVTYPE_MATCHED   
+##           <dbl> <chr>            
+##  1 150319678250 Flood            
+##  2  71913712800 Hurricane/Typhoon
+##  3  57340613590 Tornado          
+##  4  43323541000 Storm Tide       
+##  5  18752904170 Hail             
+##  6  17562128610 Flash Flood      
+##  7  15018672000 Drought          
+##  8  14610229010 Hurricane/Typhoon
+##  9  10148404500 Flood            
+## 10   8967041310 Ice Storm
+```
+Looking at our top 10 economically consequential weather events, we notice that we need to re-collate the data so all the various Hurricane/Typhoon observations get grouped back together, which we will re-do below.
+
+
+```r
+summed_property_events %>%  group_by(EVTYPE_MATCHED) %>%
+      summarise(TotalDamage = sum(TotalDamage)) %>%
+      arrange(desc(TotalDamage)) -> summed_property_events_refined
+head(summed_property_events_refined,10)
+```
+
+```
+## # A tibble: 10 × 2
+##    EVTYPE_MATCHED     TotalDamage
+##    <chr>                    <dbl>
+##  1 Flood             161071361250
+##  2 Hurricane/Typhoon  90732527810
+##  3 Tornado            57345502190
+##  4 Storm Tide         47965589000
+##  5 Hail               19145902670
+##  6 Flash Flood        18439139760
+##  7 Drought            15091766600
+##  8 Ice Storm           8968208310
+##  9 Wildfire            8895482130
+## 10 Thunderstorm Wind   8685898490
+```
+Finally, our data looks like it's in a format where we can analyze it using a plot!
+
+
+```r
+neat10 <- summed_property_events_refined[1:10,]
+
+ggplot(data = neat10) +
+      geom_col(mapping = aes(x = fct_reorder(EVTYPE_MATCHED, TotalDamage, .desc = TRUE), y = TotalDamage/1000000000, fill = TotalDamage)) +
+      theme(axis.text.x = element_text(angle = 45, size = 8, margin = margin(12))) +
+      theme(plot.title = element_text(hjust = 0.5), plot.caption = element_text(hjust = 0.5))+
+      scale_fill_gradient(low = "sienna", high = "red2")+
+      theme(legend.position = "none")+
+      labs(title = "The Most Economically Consequential Weather Events,\n Ordered", y = "Cumulative Damage in Billions of Dollars,\n from 1950 to 2011",
+           x = "Type of Weather Event")
+```
+
+![](Project2_RMD_files/figure-html/finalplot-1.png)<!-- -->
+  
+We can see clearly that the weather events that cause the most economic damage in the United States share some similarities with the weather events that cause the most impact on human health, but there is not a 1:1 correspondence. In particular, we see that water and wind related events cause by far the most economic damage in the United States, while heat-related events, which ranked highly in the causes of weather-related injuries, and even highly in the causes of weather-related fatalities, are fairly low in terms of economic consequence.  
+
+It is important to note, however, that being as this data set ends in 2011, it misses the effect of recent global-warming mediated wildfires that have caused so much havoc in the United States in the last 12 years, particularly in California. It would be interesting to re-run this analysis using more recent data to see if Wildfires jumped up the rankings of economically-consequential weather events.

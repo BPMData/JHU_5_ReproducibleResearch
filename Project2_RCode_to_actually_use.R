@@ -292,9 +292,7 @@ property_events %>%  group_by(EVTYPE) %>%
       summarise(TotalDamage = sum(TOTALDMG)) %>%
       arrange(desc(TotalDamage)) -> summed_property_events
 
-summed_property_events[1:10,]
-
-unique(summed_property_events$EVTYPE)
+length(unique(summed_property_events$EVTYPE))
 
 # 431 event types
 
@@ -304,15 +302,20 @@ dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","
 dictionary_hurricaneonly <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
 
 
+dictionary <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Freezing Fog","Frost/Freeze","Funnel Cloud","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane","Typhoon","Hurricane/Typhoon","Ice Storm","Lakeshore Flood","Lake-Effect Snow","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Sleet","Storm Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
 
+dictionary
 dictionary <- tolower(dictionary)
 
 summed_property_events$EVTYPE <- tolower(summed_property_events$EVTYPE)
 
 
-summed_property_events$EVTYPE_GROUPED <- dictionary[amatch(summed_property_events$EVTYPE,dictionary,method="lcs", maxDist=20)]
+summed_property_events$EVTYPE_MATCHED <- dictionary[amatch(summed_property_events$EVTYPE,dictionary,method="lcs", maxDist=60)]
 
-length(unique(summed_property_events$EVTYPE_GROUPED))
+length(unique(summed_property_events$EVTYPE_MATCHED))
+
+summed_property_events %>%
+      filter(EVTYPE_MATCHED == "marine high wind")
 
 # Trying to fix the hurricane thing
 
