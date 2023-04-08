@@ -49,7 +49,7 @@ This report concludes by noting that further study is necessary, and that in par
 
 <h1 align="Center"> **Part 2: Data Processing and Cleaning** </h1>
 
-After loading our data, we look at some general descriptive statistics of the data set. We see it has 902,297 observations across 37 variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual data and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends at Nov. 30th, 2011.
+After loading our data, we look at some general descriptive statistics of the data set. We see it has 902,297 observations across 37 variables. Converting the data in the column named BGN_DATE to a format readable by R as an actual date and not a character string, we can then also see that the data begins on Jan. 3rd, 1950, and ends on Nov. 30th, 2011.
 ```{r dates, cache = TRUE}
 stormdata$BGN_DATE <- mdy_hms(stormdata$BGN_DATE)
 
@@ -57,7 +57,7 @@ stormdata$BGN_DATE <- as.Date(stormdata$BGN_DATE)
 
 range(stormdata$BGN_DATE)
 ```
-Out of curiosity, we decide to look up the most fatal weather incident in this dataset. A quick subsetting of the dataset by the row which has the maximum number of fatalities in the dataset tells  us that the event with the most fatalities recorded in this dataset is the 1995 Chicago heatwave, with $583$ deaths. While a tragedy, this dataset covers the year in which Hurricane Katarina happens, which should handily exceed the death toll of the 1995 Chicago Heatwave.
+Out of curiosity, we decide to look up the most fatal weather incident in this dataset. A quick subsetting of the dataset by the row which has the maximum number of fatalities tells  us that the event with the most fatalities recorded in this dataset is the 1995 Chicago heatwave, with $583$ deaths. While a tragedy, this dataset covers the year in which Hurricane Katarina happens, which should handily exceed the death toll of the 1995 Chicago Heatwave.
 
 ```{r maxfatal, cache = TRUE}
 maxfatal <- stormdata[stormdata$FATALITIES == max(stormdata$FATALITIES), ]
@@ -109,7 +109,7 @@ human_events %>%  group_by(EVTYPE) %>%
       summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES))%>%
       arrange(desc(FATALITIES + INJURIES)) -> summed_human_events
 ```
-However, when we do this, we notice our dataset covers ***$220$*** different supposed event types. This is a lot less than the apparently ***$985$*** different type of weather events in the original data set, but according to [the NOAA itself](https://www.ncdc.noaa.gov/stormevents/details.jsp), the **Storm Events Database** should only include 48 different types of weather events! Looking at the column *EVTYPE* manually, we notice the reason there are 985 event types instead of 48 is... a massive number of typos collected over the course of over 50 years of data entry, much of which was probably done manually for decades.
+However, when we do this, we notice our dataset covers ***$220$*** different supposed event types. This is a lot less than the apparently ***$985$*** different type of weather events in the original data set, but according to [the NOAA itself](https://www.ncdc.noaa.gov/stormevents/details.jsp), the **Storm Events Database** should only include $48$ different types of weather events! Looking at the column *EVTYPE* manually, we notice the reason there are $985$ event types instead of $48$ is... a massive number of typos collected over the course of over $50$ years of data entry, much of which was probably done manually for decades.
 
 ```{r cleaning up EVTYPES 1, cache = TRUE}
 length(unique(summed_human_events$EVTYPE))
@@ -117,11 +117,11 @@ length(unique(stormdata$EVTYPE))
 
 head(unique(stormdata$EVTYPE),40)
 ```
-For example, in only the 40 entries above, we see **THUNDERSTORM WINDS** written as everything from **THUNDERSTORM WINDS** to **THUNDERSTORM WINS** to **TSTM WIND**, all of which are currently considered seperate event types, even though they obviously are not.
+For example, in only the $40$ entries above, we see **THUNDERSTORM WINDS** written as everything from **THUNDERSTORM WINDS** to **THUNDERSTORM WINS** to **TSTM WIND**, all of which are currently considered seperate event types, even though they obviously are not.
 
 Before we start, we're also going to correct two egregiously unusual misentered event type observations - one event type was listed as "cold" when the official weather formatting should be **"Extreme Cold/Wind Chill"**, which will cause that observation to be mismatched as "flood" simply because flood has the letters O,L and D and is a short word, and one observation is listed as the unnecessarily loquacious "unseasonably warm and dry," which we'll amend to the official event type, **"Heat"**.
 
-Having corrected these outliers, we'll create a vector, *dictionary*, of the NOAA's 48 official storm event types, and then use approximate string matching using the amatch() command to condense all of the 220 event types we currently have into the official 48.We are going to use the **longest common substring** method, as this will help ensure events like "Ex. Cold" get matched to the event type "Extreme Cold/Wind Chill" even though the difference in the number of characters is fairly large, rather than to something like "Funnel Cloud" or "Flood", which is closer in character count to "Ex. Cold" but don't even contain the word "cold".
+Having corrected these outliers, we'll create a vector, *dictionary*, of the NOAA's $48$ official storm event types, and then use approximate string matching using the amatch() command to condense all of the 220 event types we currently have into the official 48.We are going to use the **longest common substring** method, as this will help ensure events like "Ex. Cold" get matched to the event type "Extreme Cold/Wind Chill" even though the difference in the number of characters is fairly large, rather than to something like "Funnel Cloud" or "Flood", which is closer in character count to "Ex. Cold" but don't even contain the word "cold".
 
 ```{r amatching human_events, cache = TRUE}
 summed_human_events[47,1] <- "extreme cold"
